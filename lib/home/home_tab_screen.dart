@@ -71,7 +71,7 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: new Icon(Icons.home_outlined),
+            icon: new Icon(Icons.other_houses_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(

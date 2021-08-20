@@ -49,11 +49,11 @@ class _LoginScreenState extends State<LoginScreen>
 
   //MARK: show dialog to confirm number inputted
   void _startCheck() {
-  this._phoneNumber = this._numberController.text;
+    this._phoneNumber = this._numberController.text;
     if (this._phoneNumber.isEmpty) {
-      print("No number available");
       return;
     }
+
     this.startApiCall();
   }
 
@@ -122,12 +122,15 @@ class _LoginScreenState extends State<LoginScreen>
               child: TextButton(
                 style: TextButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    primary: secondaryColor, 
+                    primary: secondaryColor,
                     onSurface: secondaryColor),
                 onPressed: () {
                   this._openTermsPage();
                 },
-                child: Text('Terms and Conditions', style: WidgetHelper.textStyle12Colored,),
+                child: Text(
+                  'Terms and Conditions',
+                  style: WidgetHelper.textStyle12Colored,
+                ),
               ),
             ),
           ],

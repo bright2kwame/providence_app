@@ -35,7 +35,7 @@ class _DrawerMenuPageState extends State<DrawerMenuPage> {
                 ),
                 Center(
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
                     child: Text(
                       "BUSINESS INSURANCE",
                       textAlign: TextAlign.center,
@@ -46,15 +46,15 @@ class _DrawerMenuPageState extends State<DrawerMenuPage> {
                 Padding(
                   padding: EdgeInsets.only(left: 16, right: 16),
                   child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
                         width:
                             ((MediaQuery.of(context).size.width * 0.75) - 32) /
                                 3,
-                        child:
-                            DrawerCardItem("Motor\n3rd Party", Icons.ac_unit),
+                        child: DrawerCardItem(
+                            "Motor\n3rd Party", Icons.pedal_bike_outlined),
                       ),
                       Container(
                         width:
@@ -67,8 +67,8 @@ class _DrawerMenuPageState extends State<DrawerMenuPage> {
                         width:
                             ((MediaQuery.of(context).size.width * 0.75) - 32) /
                                 3,
-                        child: DrawerCardItem(
-                            "Motor 3rd Party Fire & Theft", Icons.motorcycle_outlined ),
+                        child: DrawerCardItem("Motor 3rd Party Fire & Theft",
+                            Icons.motorcycle_outlined),
                       )
                     ],
                   ),
@@ -81,21 +81,22 @@ class _DrawerMenuPageState extends State<DrawerMenuPage> {
                         width:
                             ((MediaQuery.of(context).size.width * 0.75) - 32) /
                                 3,
-                        child: DrawerCardItem("Burglary\n", Icons.person_outline),
+                        child:
+                            DrawerCardItem("Burglary\n", Icons.person_outline),
                       ),
                       Container(
                         width:
                             ((MediaQuery.of(context).size.width * 0.75) - 32) /
                                 3,
-                        child:
-                            DrawerCardItem("Personal Accident", Icons.person_outline_sharp),
+                        child: DrawerCardItem("Personal Accident",
+                            Icons.person_pin_circle_outlined),
                       ),
                       Container(
                         width:
                             ((MediaQuery.of(context).size.width * 0.75) - 32) /
                                 3,
-                        child:
-                            DrawerCardItem("Home Owners\n", Icons.home_outlined),
+                        child: DrawerCardItem(
+                            "Home Owners\n", Icons.home_outlined),
                       )
                     ],
                   ),
@@ -125,22 +126,22 @@ class _DrawerMenuPageState extends State<DrawerMenuPage> {
                         width:
                             ((MediaQuery.of(context).size.width * 0.75) - 32) /
                                 3,
-                        child:
-                            DrawerCardItem("Motor\n3rd Party", Icons.motorcycle_outlined ),
+                        child: DrawerCardItem(
+                            "Motor\n3rd Party", Icons.motorcycle_outlined),
                       ),
                       Container(
                         width:
                             ((MediaQuery.of(context).size.width * 0.75) - 32) /
                                 3,
                         child: DrawerCardItem(
-                            "Motor Comprehensive", Icons.car_repair_outlined ),
+                            "Motor Comprehensive", Icons.car_repair_outlined),
                       ),
                       Container(
                         width:
                             ((MediaQuery.of(context).size.width * 0.75) - 32) /
                                 3,
-                        child: DrawerCardItem(
-                            "Motor 3rd Party Fire & Theft", Icons.motorcycle_outlined ),
+                        child: DrawerCardItem("Motor 3rd Party Fire & Theft",
+                            Icons.motorcycle_outlined),
                       )
                     ],
                   ),

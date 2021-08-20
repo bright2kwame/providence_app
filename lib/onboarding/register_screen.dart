@@ -19,7 +19,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     with TickerProviderStateMixin {
   TextEditingController _emailController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
-  TextEditingController _confirmPasswordController = new TextEditingController();
+  TextEditingController _confirmPasswordController =
+      new TextEditingController();
   var _isLoading = false;
   FocusNode _focusEmail = new FocusNode();
   FocusNode _focusPassword = new FocusNode();
@@ -56,10 +57,10 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   //MARK: show dialog to confirm number inputted
   void _startCheck() {
-  this._emailAddress = this._emailController.text;
-  this._password = this._passwordController.text;
-  this._confirmedPassword = this._confirmPasswordController.text;
-  
+    this._emailAddress = this._emailController.text;
+    this._password = this._passwordController.text;
+    this._confirmedPassword = this._confirmPasswordController.text;
+
     if (this._emailAddress.isEmpty) {
       print("No number available");
       return;
@@ -105,7 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               child: TextFormField(
                 maxLines: 1,
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.emailAddress,
                 style: WidgetHelper.textStyle16,
                 textAlign: TextAlign.left,
                 onFieldSubmitted: (String value) {
@@ -114,15 +115,16 @@ class _RegisterScreenState extends State<RegisterScreen>
                 validator: (val) => Validator().validateMobile(val!),
                 onSaved: (val) => this._emailAddress = val!,
                 controller: this._emailController,
-                decoration: AppInputDecorator.boxDecorate("Enter email address"),
+                decoration:
+                    AppInputDecorator.boxDecorate("Enter email address"),
               ),
             ),
-             Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child: TextFormField(
                 maxLines: 1,
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.visiblePassword,
                 style: WidgetHelper.textStyle16,
                 textAlign: TextAlign.left,
                 onFieldSubmitted: (String value) {
@@ -135,12 +137,12 @@ class _RegisterScreenState extends State<RegisterScreen>
                 decoration: AppInputDecorator.boxDecorate("Enter password"),
               ),
             ),
-             Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child: TextFormField(
                 maxLines: 1,
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.visiblePassword,
                 style: WidgetHelper.textStyle16,
                 textAlign: TextAlign.left,
                 onFieldSubmitted: (String value) {
@@ -149,7 +151,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                 validator: (val) => Validator().validatePassword(val!),
                 onSaved: (val) => this._confirmedPassword = val!,
                 controller: this._confirmPasswordController,
-                decoration: AppInputDecorator.boxDecorate("Enter password again"),
+                decoration:
+                    AppInputDecorator.boxDecorate("Enter password again"),
               ),
             ),
             Padding(
@@ -167,12 +170,15 @@ class _RegisterScreenState extends State<RegisterScreen>
               child: TextButton(
                 style: TextButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    primary: secondaryColor, 
+                    primary: secondaryColor,
                     onSurface: secondaryColor),
                 onPressed: () {
                   this._openTermsPage();
                 },
-                child: Text('Terms and Conditions', style: WidgetHelper.textStyle12Colored,),
+                child: Text(
+                  'Terms and Conditions',
+                  style: WidgetHelper.textStyle12Colored,
+                ),
               ),
             ),
           ],

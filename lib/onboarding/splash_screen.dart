@@ -34,7 +34,9 @@ class _SplashPageState extends State<SplashPage> {
                 height: 100,
               )),
           Expanded(
-            child: Container(),
+            child: Container(
+               
+            ),
           ),
           Row(
             children: [
