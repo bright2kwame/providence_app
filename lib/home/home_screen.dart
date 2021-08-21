@@ -56,8 +56,8 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.white.withAlpha(100)),
                     child: ClipOval(
                       child: new Image(
-                        image: AssetImage(ImageResource.appLogo),
-                        fit: BoxFit.cover,
+                        image: AssetImage(ImageResource.appLogoSmall),
+                        fit: BoxFit.scaleDown,
                         width: 100,
                         height: 100,
                       ),

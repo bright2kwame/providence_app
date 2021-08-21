@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provident_insurance/onboarding/password_login_screen.dart';
+import 'package:provident_insurance/home/home_tab_screen.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
@@ -7,37 +7,32 @@ import 'package:provident_insurance/constants/text_constant.dart';
 import 'package:provident_insurance/constants/color.dart';
 import '../constants/image_resource.dart';
 
-class RegisterScreen extends StatefulWidget {
-  final String phoneNumber;
-  RegisterScreen(this.phoneNumber);
-
+class ResetPasswordScreen extends StatefulWidget {
+  final String _phoneNumber;
+  ResetPasswordScreen(this._phoneNumber);
   @override
-  _RegisterScreenState createState() => new _RegisterScreenState();
+  _ResetPasswordScreenState createState() => new _ResetPasswordScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen>
+class _ResetPasswordScreenState extends State<ResetPasswordScreen>
     with TickerProviderStateMixin {
-  TextEditingController _emailController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
-  TextEditingController _confirmPasswordController =
-      new TextEditingController();
+  TextEditingController _passwordAgainController = new TextEditingController();
+  TextEditingController _verificationController = new TextEditingController();
   var _isLoading = false;
-  FocusNode _focusEmail = new FocusNode();
   FocusNode _focusPassword = new FocusNode();
-  FocusNode _focusConfirmPassword = new FocusNode();
-  String _emailAddress = "";
+  FocusNode _focusAgainPassword = new FocusNode();
+  FocusNode _focusVerificationCode = new FocusNode();
   String _password = "";
-  String _confirmedPassword = "";
+  String _passwordAgain = "";
+  String _code = "";
 
   //MAKE: api call here
   void startApiCall() {
     setState(() {
       this._isLoading = true;
     });
-
-    // Navigator.of(context).push(new MaterialPageRoute(
-    //     builder: (BuildContext context) =>
-    //         new PasswordLoginScreen(this._phoneNumber)));
+    Navigator.pop(context);
   }
 
   @override
@@ -57,19 +52,12 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   //MARK: show dialog to confirm number inputted
   void _startCheck() {
-    this._emailAddress = this._emailController.text;
     this._password = this._passwordController.text;
-    this._confirmedPassword = this._confirmPasswordController.text;
-
-    if (this._emailAddress.isEmpty) {
-      print("No number available");
+    if (this._password.isEmpty) {
       return;
     }
     this.startApiCall();
   }
-
-  //MARK: take user to terms page
-  void _openTermsPage() {}
 
   Widget _buildMainContentView(context) {
     return new SafeArea(
@@ -93,68 +81,66 @@ class _RegisterScreenState extends State<RegisterScreen>
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
-                  "Register",
+                  "Reset Password",
                   style: new TextStyle(
-                      fontSize: 40.0,
+                      fontSize: 30.0,
                       fontFamily: TextConstant.roboto,
                       color: secondaryColor),
                 ),
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: EdgeInsets.only(top: 32, right: 32, left: 32),
               child: TextFormField(
                 maxLines: 1,
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.number,
                 style: WidgetHelper.textStyle16,
                 textAlign: TextAlign.left,
                 onFieldSubmitted: (String value) {
-                  _focusEmail.unfocus();
+                  _focusVerificationCode.unfocus();
                 },
-                validator: (val) => Validator().validateMobile(val!),
-                onSaved: (val) => this._emailAddress = val!,
-                controller: this._emailController,
-                decoration:
-                    AppInputDecorator.boxDecorate("Enter email address"),
+                validator: (val) => Validator().validatePassword(val!),
+                onSaved: (val) => this._code = val!,
+                controller: this._verificationController,
+                obscureText: false,
+                decoration: AppInputDecorator.boxDecorate("Enter code"),
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: EdgeInsets.only(top: 32, right: 32, left: 32),
               child: TextFormField(
                 maxLines: 1,
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.visiblePassword,
+                keyboardType: TextInputType.text,
                 style: WidgetHelper.textStyle16,
                 textAlign: TextAlign.left,
                 onFieldSubmitted: (String value) {
                   _focusPassword.unfocus();
-                  _focusConfirmPassword.hasFocus;
                 },
-                obscureText: true,
                 validator: (val) => Validator().validatePassword(val!),
                 onSaved: (val) => this._password = val!,
                 controller: this._passwordController,
+                obscureText: true,
                 decoration: AppInputDecorator.boxDecorate("Enter password"),
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: EdgeInsets.only(top: 32, right: 32, left: 32),
               child: TextFormField(
                 maxLines: 1,
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.visiblePassword,
+                keyboardType: TextInputType.text,
                 style: WidgetHelper.textStyle16,
                 textAlign: TextAlign.left,
                 onFieldSubmitted: (String value) {
-                  _focusConfirmPassword.unfocus();
+                  _focusAgainPassword.unfocus();
                 },
                 validator: (val) => Validator().validatePassword(val!),
-                onSaved: (val) => this._confirmedPassword = val!,
-                controller: this._confirmPasswordController,
+                onSaved: (val) => this._passwordAgain = val!,
+                controller: this._passwordAgainController,
                 obscureText: true,
-                decoration:
-                    AppInputDecorator.boxDecorate("Enter password again"),
+                decoration: AppInputDecorator.boxDecorate("Confirm password"),
               ),
             ),
             Padding(
@@ -164,23 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 onPressed: () {
                   this._startCheck();
                 },
-                child: Text('Create Account'),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 16, left: 32, right: 32),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    primary: secondaryColor,
-                    onSurface: secondaryColor),
-                onPressed: () {
-                  this._openTermsPage();
-                },
-                child: Text(
-                  'Terms and Conditions',
-                  style: WidgetHelper.textStyle12Colored,
-                ),
+                child: Text('Reset Password'),
               ),
             ),
           ],

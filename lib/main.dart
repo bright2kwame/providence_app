@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provident_insurance/constants/color.dart';
+import 'package:provident_insurance/home/home_tab_screen.dart';
 import 'package:provident_insurance/onboarding/splash_screen.dart';
 import 'model/all_model_data.dart';
+
+String HOME_SCREEN = '/HomeScreen', SPLASH_SCREEN = '/SplashScreen';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,11 +24,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Provident Insurance',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue, accentColor: primaryColor),
       debugShowCheckedModeBanner: false,
       home: SplashPage(),
+      routes: <String, WidgetBuilder>{
+        SPLASH_SCREEN: (BuildContext context) => new SplashPage(),
+        HOME_SCREEN: (BuildContext context) => new HomeTabScreen(),
+      },
     );
   }
 }

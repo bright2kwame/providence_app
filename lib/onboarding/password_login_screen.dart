@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provident_insurance/home/home_tab_screen.dart';
+import 'package:provident_insurance/onboarding/reset_password_screen.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
@@ -28,9 +29,7 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
     });
     Navigator.pop(context);
     Navigator.of(context).push(new MaterialPageRoute(
-        builder: (BuildContext context) =>
-            new HomeTabScreen()));
-    
+        builder: (BuildContext context) => new HomeTabScreen()));
   }
 
   @override
@@ -50,7 +49,7 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
 
   //MARK: show dialog to confirm number inputted
   void _startCheck() {
-  this._password = this._passwordController.text;
+    this._password = this._passwordController.text;
     if (this._password.isEmpty) {
       return;
     }
@@ -58,7 +57,11 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
   }
 
   //MARK: take user to terms page
-  void _resetPasswordPage() {}
+  void _resetPasswordPage() {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) =>
+            new ResetPasswordScreen(widget._phoneNumber)));
+  }
 
   Widget _buildMainContentView(context) {
     return new SafeArea(
@@ -104,6 +107,7 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
                 validator: (val) => Validator().validatePassword(val!),
                 onSaved: (val) => this._password = val!,
                 controller: this._passwordController,
+                obscureText: true,
                 decoration: AppInputDecorator.boxDecorate("Enter password"),
               ),
             ),

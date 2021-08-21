@@ -32,7 +32,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         color: Colors.white.withAlpha(100)),
                     child: ClipOval(
                       child: new Image(
-                        image: AssetImage(ImageResource.appLogo),
+                        image: AssetImage(ImageResource.appLogoSmall),
                         fit: BoxFit.cover,
                         width: 100,
                         height: 100,

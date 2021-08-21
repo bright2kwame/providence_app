@@ -20,49 +20,48 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.white,
         body: SafeArea(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(
-              padding: EdgeInsets.only(left: 32, right: 32, top: 64),
-              child: new Image(
-                image: AssetImage(ImageResource.appLogo),
-                fit: BoxFit.contain,
-                width: 200,
-                height: 100,
-              )),
-          Expanded(
-            child: Container(
-               
-            ),
-          ),
-          Row(
-            children: [
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                  padding: EdgeInsets.only(left: 32, right: 32, top: 64),
+                  child: new Image(
+                    image: AssetImage(ImageResource.appLogo),
+                    fit: BoxFit.contain,
+                    width: 200,
+                    height: 100,
+                  )),
               Expanded(
                 child: Container(),
               ),
-              Padding(
-                padding: EdgeInsets.all(32),
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  padding: EdgeInsets.all(8),
-                  child: FloatingActionButton(
-                    onPressed: _navigateNext,
-                    backgroundColor: primaryColor,
-                    child: Icon(Icons.arrow_forward),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(),
                   ),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: primaryColor.withAlpha(50)),
-                ),
+                  Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      padding: EdgeInsets.all(8),
+                      child: FloatingActionButton(
+                        onPressed: _navigateNext,
+                        backgroundColor: primaryColor,
+                        child: Icon(Icons.arrow_forward),
+                      ),
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: primaryColor.withAlpha(50)),
+                    ),
+                  )
+                ],
               )
             ],
-          )
-        ],
-      ),
-    ));
+          ),
+        ));
   }
 }

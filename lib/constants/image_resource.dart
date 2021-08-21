@@ -1,6 +1,4 @@
 class ImageResource {
-  static get appLogo => "images/provident_logo.png";
-  static get appLogoSmall => "images/provident_logo.png";
-
-
+  static get appLogo => "images/provident_logo_new.png";
+  static get appLogoSmall => "images/provident_lock.png";
 }

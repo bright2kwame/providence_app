@@ -32,10 +32,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           color: Colors.white.withAlpha(100)),
                       child: ClipOval(
                         child: new Image(
-                          image: AssetImage(ImageResource.appLogo),
-                          fit: BoxFit.cover,
-                          width: 100,
-                          height: 100,
+                          image: AssetImage(ImageResource.appLogoSmall),
+                          fit: BoxFit.contain,
+                          width: 90,
+                          height: 90,
                         ),
                       ),
                     ),

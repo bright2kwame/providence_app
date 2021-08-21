@@ -31,7 +31,7 @@ dependencies:
   sqfentity: ^2.0.0
   sqfentity_gen:
   carousel_slider: ^4.0.0
-  cupertino_stepper: ^0.2.0
+  intl: ^0.17.0
 
 dev_dependencies:
   build_runner: ^1.6.5

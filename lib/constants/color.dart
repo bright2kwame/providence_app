@@ -20,4 +20,3 @@ extension HexColor on Color {
 final Color primaryColor = HexColor.fromHex('#F01500');
 final Color secondaryColor = HexColor.fromHex('#3E4E72');
 final Color bgColor = HexColor.fromHex('#F8F9FB');
-
