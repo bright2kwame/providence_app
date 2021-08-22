@@ -18,6 +18,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           "NEW POLICY",
           style: WidgetHelper.textStyle16AcensWhite,

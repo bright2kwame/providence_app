@@ -1,4 +1,4 @@
-package com.example.provident_insurance
+package com.provident.insurance.app
 
 import io.flutter.embedding.android.FlutterActivity
 

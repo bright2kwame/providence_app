@@ -16,6 +16,7 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           "FILE CLAIM",
           style: WidgetHelper.textStyle16AcensWhite,
@@ -42,8 +43,14 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
   static final String _defInsurancePeriodDisplay = "Insurance Period";
   String _selectedInsuranceDatePeriod = _defInsurancePeriodDisplay;
 
-  /*driver section*/
-  static TextEditingController _yearsOfContinousDrivingController =
+  /*vehicle section*/
+  static TextEditingController _vehicleNumberController =
+      new TextEditingController();
+  static TextEditingController _yearOfMakeController =
+      new TextEditingController();
+  static TextEditingController _nameOfOwnerController =
+      new TextEditingController();
+  static TextEditingController _addressOfOwnerController =
       new TextEditingController();
 
   static int _currentStep = 0;
@@ -270,99 +277,6 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     ));
   }
 
-  //MARK: driver ui section
-  Widget _driverUi() {
-    return Container(
-        child: new ListView(
-      shrinkWrap: true,
-      reverse: false,
-      children: <Widget>[
-        new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            new Stack(
-              children: <Widget>[
-                new Form(
-                  child: new Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 16),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                              border:
-                                  Border.all(width: 1.0, color: Colors.grey)),
-                          child: TextButton(
-                              onPressed: () {
-                                this._selectDate(true, false);
-                              },
-                              child: Row(
-                                children: [
-                                  Text(
-                                    this._selectedLicenseDateDisplay,
-                                    textAlign: TextAlign.left,
-                                  ),
-                                  Expanded(child: Container()),
-                                  Icon(
-                                    Icons.date_range_outlined,
-                                    size: 20,
-                                  ),
-                                ],
-                              )),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 16),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                              border:
-                                  Border.all(width: 1.0, color: Colors.grey)),
-                          child: TextButton(
-                              onPressed: () {
-                                this._selectDate(false, true);
-                              },
-                              child: Row(
-                                children: [
-                                  Text(
-                                    _selectedDateOfBirthDisplay,
-                                    textAlign: TextAlign.left,
-                                  ),
-                                  Expanded(child: Container()),
-                                  Icon(
-                                    Icons.date_range_outlined,
-                                    size: 20,
-                                  ),
-                                ],
-                              )),
-                        ),
-                      ),
-                      new Padding(
-                          padding:
-                              EdgeInsets.only(left: 0.0, right: 0.0, top: 32.0),
-                          child: new TextFormField(
-                            autofocus: false,
-                            keyboardType: TextInputType.number,
-                            controller: _yearsOfContinousDrivingController,
-                            decoration: AppInputDecorator.boxDecorate(
-                                "Years of driving"),
-                          )),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        )
-      ],
-    ));
-  }
-
   //MARK: insurance ui section
   Widget _insuranceUi() {
     return Container(
@@ -424,19 +338,56 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
         new Padding(
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
-            controller: _numberOfSeatsController,
+            controller: _vehicleNumberController,
             autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter Number of Seats"),
-            keyboardType: TextInputType.emailAddress,
+            decoration: AppInputDecorator.boxDecorate("Enter Vehicle number"),
+            keyboardType: TextInputType.text,
           ),
         ),
         new Padding(
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
-            controller: _cubicCapacityController,
+            controller: _yearOfMakeController,
             autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter Cubic Capacity"),
-            keyboardType: TextInputType.emailAddress,
+            decoration: AppInputDecorator.boxDecorate("Enter Year of make"),
+            keyboardType: TextInputType.number,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _nameOfOwnerController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter name of owner"),
+            keyboardType: TextInputType.text,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _addressOfOwnerController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter address of owner"),
+            keyboardType: TextInputType.text,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _addressOfOwnerController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter purpose of use"),
+            keyboardType: TextInputType.text,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _addressOfOwnerController,
+            autofocus: false,
+            decoration:
+                AppInputDecorator.boxDecorate("Enter number of trailers"),
+            keyboardType: TextInputType.text,
           ),
         ),
       ],
@@ -477,8 +428,7 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(left: 32, right: 32, top: 32),
-              child:
-                  Text("Provide the following information to file a complain."),
+              child: Text("Provide the following information to file a claim."),
             ),
             new Stepper(
               steps: steps,
@@ -491,30 +441,47 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
                     var name = _fullNameController.value.text.toString().trim();
                     var number =
                         _phoneNumberController.value.text.toString().trim();
-                    var email = _addressController.value.text.toString().trim();
+                    var address =
+                        _addressController.value.text.toString().trim();
+                    var occupation =
+                        _occupationController.value.text.toString().trim();
+                    var branch = _branchController.value.text.toString().trim();
                     if (!Validator().isValidName(name)) {
                       this._showMessage("Enter a valid name");
+                    } else if (!Validator().isValidInput(occupation)) {
+                      this._showMessage("Enter occupation");
+                    } else if (!Validator().isValidInput(branch)) {
+                      this._showMessage("Enter branch");
                     } else if (!Validator().isValidPhoneNumber(number)) {
                       this._showMessage("Enter a valid number");
-                    } else if (!Validator().isValidEmail(email)) {
-                      this._showMessage("Enter a valid email address");
+                    } else if (!Validator().isValidInput(address)) {
+                      this._showMessage("Enter a valid address");
+                    } else if (_selectedInsuranceDatePeriod ==
+                        _defInsurancePeriodDisplay) {
+                      this._showMessage("Select Insurance date period");
                     } else {
                       //MARK: continue to next
                       this.increaseStepper();
                     }
                   } else if (_currentStep == 1) {
-                    var yearsOfDriving = _yearsOfContinousDrivingController
-                        .value.text
-                        .toString()
-                        .trim();
-                    if (!Validator()
-                        .isValidInput(_selectedDateOfBirthDisplay)) {
-                      this._showMessage("Select license issued date");
-                    } else if (!Validator()
-                        .isValidInput(_selectedDateOfBirthDisplay)) {
-                      this._showMessage("Select date oof birth");
-                    } else if (!Validator().isValidInput(yearsOfDriving)) {
-                      this._showMessage("Enter years of driving");
+                    var vehicleNumber =
+                        _vehicleNumberController.value.text.toString().trim();
+                    var vehicleMake =
+                        _yearOfMakeController.value.text.toString().trim();
+                    var nameOfOwner =
+                        _nameOfOwnerController.value.text.toString().trim();
+                    var ownerAddress =
+                        _addressOfOwnerController.value.text.toString().trim();
+                    if (_vehicleMake == _defVehicleMake) {
+                      this._showMessage("Select vehiicle make");
+                    } else if (!Validator().isValidInput(vehicleNumber)) {
+                      this._showMessage("Enter vehicle number");
+                    } else if (!Validator().isValidInput(vehicleMake)) {
+                      this._showMessage("Enter vehicle year of make");
+                    } else if (!Validator().isValidInput(nameOfOwner)) {
+                      this._showMessage("Enter owner's name");
+                    } else if (!Validator().isValidInput(ownerAddress)) {
+                      this._showMessage("Enter owner's address");
                     } else {
                       //MARK: continue to next
                       this.increaseStepper();
