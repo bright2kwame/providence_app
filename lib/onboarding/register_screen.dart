@@ -135,7 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 validator: (val) => Validator().validatePassword(val!),
                 onSaved: (val) => this._password = val!,
                 controller: this._passwordController,
-                decoration: AppInputDecorator.boxDecorate("Enter password"),
+                decoration: AppInputDecorator.boxDecorate("Enter pin"),
               ),
             ),
             Padding(
@@ -153,8 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 onSaved: (val) => this._confirmedPassword = val!,
                 controller: this._confirmPasswordController,
                 obscureText: true,
-                decoration:
-                    AppInputDecorator.boxDecorate("Enter password again"),
+                decoration: AppInputDecorator.boxDecorate("Enter pin again"),
               ),
             ),
             Padding(

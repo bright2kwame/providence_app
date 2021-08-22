@@ -6,19 +6,41 @@ import 'package:provident_insurance/util/validator.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class PolicyQuoteScreen extends StatefulWidget {
+class FileClaimScreen extends StatefulWidget {
   @override
-  _PolicyQuoteScreenState createState() => new _PolicyQuoteScreenState();
+  _FileClaimScreenState createState() => new _FileClaimScreenState();
 }
 
-class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
-  /*personal*/
+class _FileClaimScreenState extends State<FileClaimScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "FILE CLAIM",
+          style: WidgetHelper.textStyle16AcensWhite,
+        ),
+        backgroundColor: secondaryColor,
+        elevation: 0,
+      ),
+      body: _buildMainContentView(context),
+    );
+  }
+
+/*personal*/
   static TextEditingController _fullNameController =
       new TextEditingController();
   static TextEditingController _phoneNumberController =
       new TextEditingController();
-  static TextEditingController _emailAddressController =
+  static TextEditingController _addressController = new TextEditingController();
+  static TextEditingController _occupationController =
       new TextEditingController();
+  static TextEditingController _branchController = new TextEditingController();
+  static TextEditingController _policyNumberController =
+      new TextEditingController();
+
+  static final String _defInsurancePeriodDisplay = "Insurance Period";
+  String _selectedInsuranceDatePeriod = _defInsurancePeriodDisplay;
 
   /*driver section*/
   static TextEditingController _yearsOfContinousDrivingController =
@@ -26,34 +48,34 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
 
   static int _currentStep = 0;
   static var _focusNode = new FocusNode();
-  GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
   List<Step> get steps => <Step>[
         new Step(
-            title: const Text('Personal'),
+            title: const Text('Personal Info'),
             isActive: _currentStep >= 0,
             state: StepState.indexed,
             content: _personalUi()),
         new Step(
-            title: const Text('Driver'),
+            title: const Text('Vehicle Info'),
             isActive: _currentStep >= 1,
             state: StepState.indexed,
-            content: _driverUi()),
-        new Step(
-            title: const Text('Insurance'),
-            isActive: _currentStep >= 2,
-            state: StepState.indexed,
-            content: _insuranceUi()),
-        new Step(
-            title: const Text('Vehicle'),
-            isActive: _currentStep >= 3,
-            state: StepState.indexed,
             content: _vehicleUi()),
-        new Step(
-            title: const Text('Quote'),
-            isActive: _currentStep >= 4,
-            state: StepState.complete,
-            content: _quoteUi())
+        // new Step(
+        //     title: const Text('Driver'),
+        //     isActive: _currentStep >= 1,
+        //     state: StepState.indexed,
+        //     content: _driverUi()),
+        // new Step(
+        //     title: const Text('Insurance'),
+        //     isActive: _currentStep >= 2,
+        //     state: StepState.indexed,
+        //     content: _insuranceUi()),
+
+        // new Step(
+        //     title: const Text('Quote'),
+        //     isActive: _currentStep >= 4,
+        //     state: StepState.complete,
+        //     content: _quoteUi())
       ];
 
   DateTime _selectedLicenseDate = DateTime.now();
@@ -69,9 +91,6 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
     "Third Party, Fire and Theft",
     "Comprehensive"
   ];
-  static final String _defVehicleType = "Select Vehicle Type";
-  String _vehicleType = _defVehicleType;
-  var _vehicleTypes = [_defVehicleType, "Audi", "Toyota", "Benz", "Jaguar"];
 
   static final String _defVehicleMake = "Select Vehicle Make";
   String _vehicleMake = _defVehicleMake;
@@ -95,6 +114,23 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0);
+  }
+
+  //MARK: show date range picker
+  _selectDateRange() async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2025),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedInsuranceDatePeriod =
+            DateFormat('yyyy-MM-dd').format(picked.start) +
+                " - " +
+                DateFormat('yyyy-MM-dd').format(picked.end);
+      });
+    }
   }
 
 //MARK: show date picker
@@ -121,7 +157,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
   }
 
 //MARK: personal ui section
-  static Widget _personalUi() {
+  Widget _personalUi() {
     return Container(
         child: new ListView(
       shrinkWrap: true,
@@ -155,6 +191,24 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                                 left: 0.0, right: 0.0, top: 16.0),
                             child: new TextFormField(
                               autofocus: false,
+                              controller: _occupationController,
+                              decoration: AppInputDecorator.boxDecorate(
+                                  "Enter occupation"),
+                            )),
+                        new Padding(
+                            padding: EdgeInsets.only(
+                                left: 0.0, right: 0.0, top: 16.0),
+                            child: new TextFormField(
+                              autofocus: false,
+                              controller: _branchController,
+                              decoration: AppInputDecorator.boxDecorate(
+                                  "Enter branch name"),
+                            )),
+                        new Padding(
+                            padding: EdgeInsets.only(
+                                left: 0.0, right: 0.0, top: 16.0),
+                            child: new TextFormField(
+                              autofocus: false,
                               controller: _phoneNumberController,
                               decoration: AppInputDecorator.boxDecorate(
                                   "Enter phone number"),
@@ -164,10 +218,46 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                                 left: 0.0, right: 0.0, top: 16.0),
                             child: new TextFormField(
                               autofocus: false,
-                              controller: _emailAddressController,
+                              controller: _policyNumberController,
                               decoration: AppInputDecorator.boxDecorate(
-                                  "Enter email address"),
+                                  "Enter policy number"),
                             )),
+                        new Padding(
+                            padding: EdgeInsets.only(
+                                left: 0.0, right: 0.0, top: 16.0),
+                            child: new TextFormField(
+                              autofocus: false,
+                              controller: _addressController,
+                              decoration: AppInputDecorator.boxDecorate(
+                                  "Enter address"),
+                            )),
+                        Padding(
+                          padding: EdgeInsets.only(top: 16, bottom: 16),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                border:
+                                    Border.all(width: 1.0, color: Colors.grey)),
+                            child: TextButton(
+                                onPressed: () {
+                                  _selectDateRange();
+                                },
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      _selectedInsuranceDatePeriod,
+                                      textAlign: TextAlign.left,
+                                    ),
+                                    Expanded(child: Container()),
+                                    Icon(
+                                      Icons.date_range_outlined,
+                                      size: 20,
+                                    ),
+                                  ],
+                                )),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -314,24 +404,6 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
       reverse: false,
       children: <Widget>[
         Container(
-          child: DropdownButton<String>(
-            value: _vehicleType,
-            isExpanded: true,
-            hint: Text('Choose Vehicle Type'),
-            items: this._vehicleTypes.map((value) {
-              return DropdownMenuItem(
-                value: value,
-                child: new Text(value),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                this._vehicleType = value.toString();
-              });
-            },
-          ),
-        ),
-        Container(
           child: DropdownButton(
             isExpanded: true,
             value: _vehicleMake,
@@ -398,22 +470,6 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "GET QUOTE",
-          style: WidgetHelper.textStyle16AcensWhite,
-        ),
-        backgroundColor: secondaryColor,
-        centerTitle: true,
-        elevation: 0,
-      ),
-      body: _buildMainContentView(context),
-    );
-  }
-
   Widget _buildMainContentView(context) {
     return new SafeArea(
       child: new Container(
@@ -421,7 +477,8 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(left: 32, right: 32, top: 32),
-              child: Text("Provide the following information to get a quote."),
+              child:
+                  Text("Provide the following information to file a complain."),
             ),
             new Stepper(
               steps: steps,
@@ -434,8 +491,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                     var name = _fullNameController.value.text.toString().trim();
                     var number =
                         _phoneNumberController.value.text.toString().trim();
-                    var email =
-                        _emailAddressController.value.text.toString().trim();
+                    var email = _addressController.value.text.toString().trim();
                     if (!Validator().isValidName(name)) {
                       this._showMessage("Enter a valid name");
                     } else if (!Validator().isValidPhoneNumber(number)) {
@@ -477,9 +533,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                         _numberOfSeatsController.text.toString().trim();
                     var cubicCapacity =
                         _cubicCapacityController.text.toString().trim();
-                    if (_vehicleType == _defVehicleType) {
-                      this._showMessage("Select vehicle type");
-                    } else if (_vehicleMake == _defVehicleMake) {
+                    if (_vehicleMake == _defVehicleMake) {
                       this._showMessage("Select vehicle make");
                     } else if (!Validator().isValidInput(numberOfSeats)) {
                       this._showMessage("Enter vehicle number of seats");

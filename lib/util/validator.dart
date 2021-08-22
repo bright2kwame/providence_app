@@ -1,4 +1,3 @@
-
 class Validator {
   String validateName(String value) {
     if (value.length < 3)
@@ -42,5 +41,21 @@ class Validator {
       return 'Enter Valid Email';
     else
       return "";
+  }
+
+  bool isValidEmail(String value) {
+    return validateEmail(value).isEmpty;
+  }
+
+  bool isValidName(String value) {
+    return validateName(value).isEmpty;
+  }
+
+  bool isValidPhoneNumber(String value) {
+    return validateMobile(value).isEmpty;
+  }
+
+  bool isValidInput(String value) {
+    return validateInput(value).isEmpty;
   }
 }

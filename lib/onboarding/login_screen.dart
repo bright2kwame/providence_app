@@ -82,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen>
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
-                  "Login",
+                  "Getting Started",
                   style: new TextStyle(
                       fontSize: 40.0,
                       fontFamily: TextConstant.roboto,

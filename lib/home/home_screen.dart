@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provident_insurance/policy/add_policy_screen.dart';
+import 'package:provident_insurance/policy/file_claim_screen.dart';
 import 'package:provident_insurance/policy/policies_screen.dart';
 import 'package:provident_insurance/policy/policy_quote.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
@@ -34,6 +35,12 @@ class _HomePageState extends State<HomePage> {
         builder: (BuildContext context) => new PolicyQuoteScreen()));
   }
 
+  //MARK: navigate to file claim
+  void _navigateToFileClaim() {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) => new FileClaimScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,40 +49,55 @@ class _HomePageState extends State<HomePage> {
         children: [
           Expanded(
               child: Container(
-            color: secondaryColor,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(ImageResource.bgImage),
+                fit: BoxFit.cover,
+              ),
+            ),
             width: MediaQuery.of(context).size.width,
-            child: Column(
+            child: Stack(
               children: [
-                Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: secondaryColor.withAlpha(50), width: 10),
-                        shape: BoxShape.circle,
-                        color: Colors.white.withAlpha(100)),
-                    child: ClipOval(
-                      child: new Image(
-                        image: AssetImage(ImageResource.appLogoSmall),
-                        fit: BoxFit.scaleDown,
-                        width: 100,
-                        height: 100,
+                Container(
+                  color: secondaryColor.withAlpha(970),
+                ),
+                Center(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: secondaryColor.withAlpha(50),
+                                  width: 10),
+                              shape: BoxShape.circle,
+                              color: Colors.white.withAlpha(100)),
+                          child: ClipOval(
+                            child: new Image(
+                              image: AssetImage(ImageResource.appLogoSmall),
+                              fit: BoxFit.scaleDown,
+                              width: 100,
+                              height: 100,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Text(
-                    "Kwame Dela",
-                    style: WidgetHelper.textStyle16White,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                  child: Text(
-                    "Policy ID: 213313",
-                    style: WidgetHelper.textStyle12White,
+                      Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Text(
+                          "Kwame Dela",
+                          style: WidgetHelper.textStyle16White,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                        child: Text(
+                          "Policy ID: 213313",
+                          style: WidgetHelper.textStyle12White,
+                        ),
+                      )
+                    ],
                   ),
                 )
               ],
@@ -125,9 +147,14 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Row(
                   children: [
-                    Container(
-                      width: (MediaQuery.of(context).size.width - 32) / 3,
-                      child: ProfileCardItem("File Claim", Icons.reviews),
+                    GestureDetector(
+                      onTap: () {
+                        this._navigateToFileClaim();
+                      },
+                      child: Container(
+                        width: (MediaQuery.of(context).size.width - 32) / 3,
+                        child: ProfileCardItem("File Claim", Icons.reviews),
+                      ),
                     ),
                     Container(
                       width: (MediaQuery.of(context).size.width - 32) / 3,

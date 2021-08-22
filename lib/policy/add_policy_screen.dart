@@ -1,13 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provident_insurance/constants/color.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
-import 'package:provident_insurance/constants/text_constant.dart';
-import '../constants/image_resource.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AddPolicyScreen extends StatefulWidget {
   @override
@@ -17,7 +14,22 @@ class AddPolicyScreen extends StatefulWidget {
 }
 
 class _AddPolicyScreenState extends State<AddPolicyScreen> {
-  /*personal*/
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "NEW POLICY",
+          style: WidgetHelper.textStyle16AcensWhite,
+        ),
+        backgroundColor: secondaryColor,
+        elevation: 0,
+      ),
+      body: _buildMainContentView(context),
+    );
+  }
+
+/*personal*/
   static TextEditingController _fullNameController =
       new TextEditingController();
   static TextEditingController _phoneNumberController =
@@ -33,34 +45,74 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   static var _focusNode = new FocusNode();
   GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
-  List<Step> steps = [
-    new Step(
-        title: const Text('Personal'),
-        isActive: _currentStep >= 0,
-        state: StepState.indexed,
-        content: _personalUi()),
-    new Step(
-        title: const Text('Vehicle'),
-        isActive: _currentStep >= 3,
-        state: StepState.indexed,
-        content: _vehicleUi()),
-    new Step(
-        title: const Text('Quote'),
-        isActive: _currentStep >= 4,
-        state: StepState.complete,
-        content: _quoteUi()),
-  ];
+  List<Step> get steps => <Step>[
+        new Step(
+            title: const Text('Personal'),
+            isActive: _currentStep >= 0,
+            state: StepState.indexed,
+            content: _personalUi()),
+        new Step(
+            title: const Text('Driver'),
+            isActive: _currentStep >= 1,
+            state: StepState.indexed,
+            content: _driverUi()),
+        new Step(
+            title: const Text('Insurance'),
+            isActive: _currentStep >= 2,
+            state: StepState.indexed,
+            content: _insuranceUi()),
+        new Step(
+            title: const Text('Vehicle'),
+            isActive: _currentStep >= 3,
+            state: StepState.indexed,
+            content: _vehicleUi()),
+        new Step(
+            title: const Text('Quote'),
+            isActive: _currentStep >= 4,
+            state: StepState.complete,
+            content: _quoteUi())
+      ];
 
   DateTime _selectedLicenseDate = DateTime.now();
   String _selectedLicenseDateDisplay = "License Issued Date";
   DateTime _selectedDateOfBirth = DateTime.now();
   String _selectedDateOfBirthDisplay = "Date of Birth";
-  String _insuranceType = "Select Insurance Type";
+
+  static final String _defInsuranceType = "Select Insurance Type";
+  String _insuranceType = _defInsuranceType;
   var _insuranceTypes = [
+    _defInsuranceType,
     "Third Party",
     "Third Party, Fire and Theft",
     "Comprehensive"
   ];
+  static final String _defVehicleType = "Select Vehicle Type";
+  String _vehicleType = _defVehicleType;
+  var _vehicleTypes = [_defVehicleType, "Audi", "Toyota", "Benz", "Jaguar"];
+
+  static final String _defVehicleMake = "Select Vehicle Make";
+  String _vehicleMake = _defVehicleMake;
+  var _vehicleMakes = [_defVehicleMake, "Vitz", "C300", "C500"];
+
+  /*vehicle section*/
+  static TextEditingController _numberOfSeatsController =
+      new TextEditingController();
+  static TextEditingController _cubicCapacityController =
+      new TextEditingController();
+
+  var disclaimer =
+      "Kindly note that the premium displayed after the computation is dependent on the values you provided and might be amended or rejected should any discrepancy be noticed at the discretion of Provident Insurance Company Limited. Please tick the box below to confirm your acceptance of this disclaimer.";
+  var discliamerTerms = false;
+  _showMessage(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
 
 //MARK: show date picker
   _selectDate(bool isLicenseIssuedDate, bool dateOfBirth) async {
@@ -76,7 +128,6 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
           _selectedLicenseDate = picked;
           this._selectedLicenseDateDisplay =
               DateFormat('yyyy-MM-dd').format(picked);
-          print("PASS IN $_selectedLicenseDateDisplay");
         }
         if (dateOfBirth) {
           _selectedDateOfBirth = picked;
@@ -250,17 +301,18 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
           children: <Widget>[
             Container(
               child: DropdownButton<String>(
-                //value: _insuranceType,
+                isExpanded: true,
+                value: _insuranceType,
                 hint: Text('Choose Insurance Type'),
                 items: this._insuranceTypes.map((String value) {
-                  return DropdownMenuItem<String>(
+                  return DropdownMenuItem(
                     value: value,
                     child: new Text(value),
                   );
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
-                    this._insuranceType = value!;
+                    this._insuranceType = value.toString();
                   });
                 },
               ),
@@ -272,53 +324,95 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   }
 
   //MARK: vehicle ui section
-  static Widget _vehicleUi() {
-    return Container();
+  Widget _vehicleUi() {
+    return Container(
+        child: new ListView(
+      shrinkWrap: true,
+      reverse: false,
+      children: <Widget>[
+        Container(
+          child: DropdownButton<String>(
+            value: _vehicleType,
+            isExpanded: true,
+            hint: Text('Choose Vehicle Type'),
+            items: this._vehicleTypes.map((value) {
+              return DropdownMenuItem(
+                value: value,
+                child: new Text(value),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                this._vehicleType = value.toString();
+              });
+            },
+          ),
+        ),
+        Container(
+          child: DropdownButton(
+            isExpanded: true,
+            value: _vehicleMake,
+            hint: Text('Choose Vehicle Make'),
+            items: this._vehicleMakes.map((value) {
+              return DropdownMenuItem(
+                value: value,
+                child: new Text(value),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                this._vehicleMake = value.toString();
+              });
+            },
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _numberOfSeatsController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter Number of Seats"),
+            keyboardType: TextInputType.emailAddress,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _cubicCapacityController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter Cubic Capacity"),
+            keyboardType: TextInputType.emailAddress,
+          ),
+        ),
+      ],
+    ));
   }
 
   //MARK: quote ui section
-  static Widget _quoteUi() {
-    return Container();
+  Widget _quoteUi() {
+    return Container(
+      child: CheckboxListTile(
+        title: Text(disclaimer),
+        value: discliamerTerms,
+        onChanged: (newValue) {
+          setState(() {
+            discliamerTerms = newValue!;
+          });
+        },
+        controlAffinity:
+            ListTileControlAffinity.leading, //  <-- leading Checkbox
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
 
-    var driverStepper = new Step(
-        title: const Text('Driver'),
-        isActive: _currentStep >= 1,
-        state: StepState.indexed,
-        content: _driverUi());
-    steps.insert(1, driverStepper);
-
-    var insuranceStepper = new Step(
-        title: const Text('Insurance'),
-        isActive: _currentStep >= 2,
-        state: StepState.indexed,
-        content: _insuranceUi());
-    steps.insert(2, insuranceStepper);
-
     _focusNode.addListener(() {
       setState(() {});
       print('Has focus: $_focusNode.hasFocus');
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "GET QUOTE",
-          style: WidgetHelper.textStyle16AcensWhite,
-        ),
-        backgroundColor: secondaryColor,
-        centerTitle: true,
-        elevation: 0,
-      ),
-      body: _buildMainContentView(context),
-    );
   }
 
   Widget _buildMainContentView(context) {
@@ -328,50 +422,77 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(left: 32, right: 32, top: 32),
-              child: Text("Provide the following information to get a quote."),
+              child: Text(
+                  "Provide the following information to request a new policy."),
             ),
             new Stepper(
               steps: steps,
               type: StepperType.vertical,
               currentStep: _currentStep,
               onStepContinue: () {
+                print("STEP " + _currentStep.toString());
                 setState(() {
                   if (_currentStep == 0) {
-                    if (_fullNameController.value.text
-                        .toString()
-                        .trim()
-                        .isEmpty) {
-                    } else if (_phoneNumberController.value.text
-                        .toString()
-                        .trim()
-                        .isEmpty) {
-                    } else if (_emailAddressController.value.text
-                        .toString()
-                        .trim()
-                        .isEmpty) {
+                    var name = _fullNameController.value.text.toString().trim();
+                    var number =
+                        _phoneNumberController.value.text.toString().trim();
+                    var email =
+                        _emailAddressController.value.text.toString().trim();
+                    if (!Validator().isValidName(name)) {
+                      this._showMessage("Enter a valid name");
+                    } else if (!Validator().isValidPhoneNumber(number)) {
+                      this._showMessage("Enter a valid number");
+                    } else if (!Validator().isValidEmail(email)) {
+                      this._showMessage("Enter a valid email address");
                     } else {
                       //MARK: continue to next
-                      if (_currentStep < steps.length - 1) {
-                        _currentStep = _currentStep + 1;
-                      } else {
-                        _currentStep = 0;
-                      }
+                      this.increaseStepper();
                     }
                   } else if (_currentStep == 1) {
-                    if (_selectedDateOfBirthDisplay.isEmpty) {
-                    } else if (_selectedLicenseDateDisplay.isEmpty) {
-                    } else if (_yearsOfContinousDrivingController.value.text
+                    var yearsOfDriving = _yearsOfContinousDrivingController
+                        .value.text
                         .toString()
-                        .trim()
-                        .isEmpty) {
+                        .trim();
+                    if (!Validator()
+                        .isValidInput(_selectedDateOfBirthDisplay)) {
+                      this._showMessage("Select license issued date");
+                    } else if (!Validator()
+                        .isValidInput(_selectedDateOfBirthDisplay)) {
+                      this._showMessage("Select date oof birth");
+                    } else if (!Validator().isValidInput(yearsOfDriving)) {
+                      this._showMessage("Enter years of driving");
                     } else {
                       //MARK: continue to next
-                      if (_currentStep < steps.length - 1) {
-                        _currentStep = _currentStep + 1;
-                      } else {
-                        _currentStep = 0;
-                      }
+                      this.increaseStepper();
                     }
+                  } else if (_currentStep == 2) {
+                    var selected =
+                        this._insuranceTypes.contains(this._insuranceType);
+                    if (_insuranceType == _defInsuranceType || !selected) {
+                      this._showMessage("Select insurance type");
+                    } else {
+                      //MARK: continue to next
+                      this.increaseStepper();
+                    }
+                  } else if (_currentStep == 3) {
+                    var numberOfSeats =
+                        _numberOfSeatsController.text.toString().trim();
+                    var cubicCapacity =
+                        _cubicCapacityController.text.toString().trim();
+                    if (_vehicleType == _defVehicleType) {
+                      this._showMessage("Select vehicle type");
+                    } else if (_vehicleMake == _defVehicleMake) {
+                      this._showMessage("Select vehicle make");
+                    } else if (!Validator().isValidInput(numberOfSeats)) {
+                      this._showMessage("Enter vehicle number of seats");
+                    } else if (!Validator().isValidInput(cubicCapacity)) {
+                      this._showMessage("Enter vehicle cubic capacity");
+                    } else {
+                      //MARK: continue to next
+                      this.increaseStepper();
+                    }
+                  } else if (_currentStep == 4) {
+                    this._checkAllRecordsAndSubmit();
                   }
                 });
               },
@@ -396,5 +517,18 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         ),
       ),
     );
+  }
+
+  void increaseStepper() {
+    //MARK: continue to next
+    if (_currentStep < steps.length - 1) {
+      _currentStep = _currentStep + 1;
+    } else {
+      _currentStep = 0;
+    }
+  }
+
+  void _checkAllRecordsAndSubmit() {
+    _showMessage("Final Stage To Submit");
   }
 }

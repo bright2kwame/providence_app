@@ -85,7 +85,7 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
-                  "Password Login",
+                  "Eportal Login",
                   style: new TextStyle(
                       fontSize: 30.0,
                       fontFamily: TextConstant.roboto,
@@ -108,7 +108,7 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
                 onSaved: (val) => this._password = val!,
                 controller: this._passwordController,
                 obscureText: true,
-                decoration: AppInputDecorator.boxDecorate("Enter password"),
+                decoration: AppInputDecorator.boxDecorate("Enter 4 digit pin"),
               ),
             ),
             Row(
