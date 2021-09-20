@@ -1,18 +1,24 @@
 class User {
-  final int id;
-  final String firstName;
-  final String lastName;
-  final String email;
-  final String phone;
+  int id = 0;
+  String firstName = "";
+  String lastName = "";
+  String fullName = "";
+  String email = "";
+  String phone = "";
+  String avatar = "";
+  String token = "";
 
-  User({
-    required this.id,
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.phone,
-  });
+  User(
+      {this.id = 0,
+      this.firstName = "",
+      this.lastName = "",
+      this.fullName = "",
+      this.email = "",
+      this.phone = "",
+      this.avatar = "",
+      this.token = ""});
 
+  User.empty();
   // Convert a Dog into a Map. The keys must correspond to the names of the
   // columns in the database.
   Map<String, dynamic> toMap() {
@@ -20,8 +26,11 @@ class User {
       'id': id,
       'firstName': firstName,
       'lastName': lastName,
+      'fullName': fullName,
       'email': email,
       'phone': phone,
+      'avatar': avatar,
+      'token': token,
     };
   }
 

@@ -375,6 +375,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
   Widget _quoteUi() {
     return Container(
       child: CheckboxListTile(
+        contentPadding: EdgeInsets.all(0),
         title: Text(disclaimer),
         value: discliamerTerms,
         onChanged: (newValue) {

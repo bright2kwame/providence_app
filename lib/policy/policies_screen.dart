@@ -1,7 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provident_insurance/api/api_service.dart';
+import 'package:provident_insurance/api/api_url.dart';
+import 'package:provident_insurance/api/parse_data.dart';
 import 'package:provident_insurance/constants/color.dart';
 import 'package:provident_insurance/home/card_item.dart';
+import 'package:provident_insurance/model/db_operations.dart';
+import 'package:provident_insurance/model/policy_model.dart';
+import 'package:provident_insurance/model/user_model.dart';
+import 'package:provident_insurance/util/pop_up_helper.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
@@ -17,10 +24,47 @@ class PolicieScreen extends StatefulWidget {
 }
 
 class _PolicieScreenState extends State<PolicieScreen> {
-  void _getPolicies() {}
-  var policies = ["Policy 1", "Policy 2", "Policy 3"];
-  var _currentPage = 1;
+  User user = new User();
+  var policies = [];
+  var _currentPage = 0;
   List colors = [Colors.red, Colors.green, Colors.amber, Colors.blue];
+  TextEditingController _vehicleNumberController = new TextEditingController();
+  FocusNode _vehicleNumberFocus = new FocusNode();
+  String _vehicleNumber = "";
+
+  @override
+  void initState() {
+    this._updateUser(true);
+    super.initState();
+  }
+
+  void _getPolicies() {
+    ApiService.get(this.user.token)
+        .getData(ApiUrl().updateAvatar())
+        .then((value) {
+          print(value);
+          value["results"].forEach((item) {
+            this.policies.add(ParseApiData().parsePolicy(item));
+          });
+          setState(() {});
+        })
+        .whenComplete(() {})
+        .onError((error, stackTrace) {
+          print(error);
+        });
+  }
+
+//MARK: update local db
+  _updateUser(bool fetchData) {
+    DBOperations().getUser().then((value) {
+      setState(() {
+        this.user = value;
+      });
+      if (fetchData) {
+        this._getPolicies();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +77,90 @@ class _PolicieScreenState extends State<PolicieScreen> {
         backgroundColor: secondaryColor,
         centerTitle: true,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.new_label,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              this._addExistingPolicy(context);
+            },
+          ),
+        ],
       ),
-      body: _buildMainContentView(context),
+      body: this.policies.isEmpty
+          ? _addNewPolicy()
+          : _buildMainContentView(context),
     );
+  }
+
+  Widget _addNewPolicy() {
+    return SafeArea(
+        child: Center(
+      child: new Column(
+        children: [
+          Expanded(child: Container()),
+          Padding(padding: EdgeInsets.all(16)),
+          new TextButton(
+              onPressed: () {
+                this._addExistingPolicy(context);
+              },
+              child: Text(
+                "Add Existing Policy",
+                style: WidgetHelper.textStyle16AcensColored,
+              )),
+          Expanded(child: Container()),
+        ],
+      ),
+    ));
+  }
+
+  void _addExistingPolicy(BuildContext buildContext) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
+                child: Text("Enter vehicle number"),
+              ),
+              Padding(
+                padding:
+                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
+                child: TextFormField(
+                  maxLines: 1,
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.text,
+                  style: WidgetHelper.textStyle16,
+                  textAlign: TextAlign.left,
+                  onFieldSubmitted: (String value) {
+                    _vehicleNumberFocus.unfocus();
+                  },
+                  validator: (val) => Validator().validatePassword(val!),
+                  onSaved: (val) => this._vehicleNumber = val!,
+                  controller: this._vehicleNumberController,
+                  obscureText: true,
+                  decoration:
+                      AppInputDecorator.boxDecorate("Vehicle Registration No."),
+                ),
+              ),
+              SafeArea(
+                  child: Padding(
+                padding: EdgeInsets.only(top: 64, left: 32, right: 32),
+                child: TextButton(
+                  style: WidgetHelper.raisedButtonStyle,
+                  onPressed: () {
+                    this._startAddingPlolicy(buildContext);
+                  },
+                  child: Text('Add Policy'),
+                ),
+              ))
+            ],
+          );
+        });
   }
 
   Widget _buildMainContentView(context) {
@@ -202,5 +327,29 @@ class _PolicieScreenState extends State<PolicieScreen> {
         ],
       ),
     ));
+  }
+
+  void _startAddingPlolicy(BuildContext buildContext) {
+    this._vehicleNumber = this._vehicleNumberController.text.trim();
+    if (this._vehicleNumber.isEmpty) {
+      PopUpHelper(context, "Policy", "Enter vehicle registration number")
+          .showMessageDialog("OK");
+      return;
+    }
+    Map<String, String> data = new Map();
+    data.putIfAbsent("vehicle_registration_number", () => this._vehicleNumber);
+    Navigator.pop(context);
+    ApiService.get(this.user.token)
+        .postData(ApiUrl().addExistingPolicy(), data)
+        .then((value) {
+          print(value);
+          this._getPolicies();
+        })
+        .whenComplete(() {})
+        .onError((error, stackTrace) {
+          print(error);
+          PopUpHelper(context, "Policy", "Failed to get managed policies")
+              .showMessageDialog("OK");
+        });
   }
 }

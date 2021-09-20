@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 
 class DBOperations {
   // Define a function that inserts dogs into the database
-  Future<void> insertDog(User user) async {
+  Future<void> insertUser(User user) async {
     // Get a reference to the database.
     final db = await ManageDatabase().initialise();
 
@@ -30,14 +30,22 @@ class DBOperations {
 
     // Convert the List<Map<String, dynamic> into a List<User>.
     return List.generate(maps.length, (i) {
-      return User(
-        id: maps[i]['id'],
-        firstName: maps[i]['firstName'],
-        lastName: maps[i]['lastName'],
-        email: maps[i]['email'],
-        phone: maps[i]['phone'],
-      );
+      var data = maps[i];
+      return parseQueryData(data);
     });
+  }
+
+  User parseQueryData(dynamic data) {
+    return User(
+      id: data['id'],
+      firstName: data['firstName'],
+      lastName: data['lastName'],
+      fullName: data['fullName'],
+      email: data['email'],
+      phone: data['phone'],
+      avatar: data['avatar'],
+      token: data['token'],
+    );
   }
 
   Future<void> updateUser(User user) async {
@@ -53,6 +61,13 @@ class DBOperations {
       // Pass the User's id as a whereArg to prevent SQL injection.
       whereArgs: [user.id],
     );
+  }
+
+  //MARK: get user
+  Future<User> getUser() async {
+    final db = await ManageDatabase().initialise();
+    var queryResult = await db.query('users', limit: 1);
+    return parseQueryData(queryResult[0]);
   }
 
   Future<void> deleteUser(int id) async {

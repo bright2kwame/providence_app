@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provident_insurance/home/home_tab_screen.dart';
+import 'package:provident_insurance/api/api_service.dart';
+import 'package:provident_insurance/api/api_url.dart';
+import 'package:provident_insurance/util/pop_up_helper.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
 import 'package:provident_insurance/constants/text_constant.dart';
 import 'package:provident_insurance/constants/color.dart';
 import '../constants/image_resource.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:flutter/services.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String _phoneNumber;
@@ -19,7 +23,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   TextEditingController _passwordController = new TextEditingController();
   TextEditingController _passwordAgainController = new TextEditingController();
   TextEditingController _verificationController = new TextEditingController();
-  var _isLoading = false;
   FocusNode _focusPassword = new FocusNode();
   FocusNode _focusAgainPassword = new FocusNode();
   FocusNode _focusVerificationCode = new FocusNode();
@@ -28,11 +31,67 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   String _code = "";
 
   //MAKE: api call here
-  void startApiCall() {
-    setState(() {
-      this._isLoading = true;
+  void startApiCall(BuildContext context) {
+    this._password = this._passwordController.text.trim();
+    this._passwordAgain = this._passwordAgainController.text.trim();
+    this._code = this._verificationController.text.trim();
+
+    if (this._code.length != 6) {
+      PopUpHelper(context, "Required Field",
+              "Provide a valid 6 Digit verificatio code")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (this._password != this._passwordAgain) {
+      PopUpHelper(context, "Required Field", "Passwords do not match")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    Map<String, String> data = new Map();
+    data.putIfAbsent("phone_number", () => widget._phoneNumber);
+    data.putIfAbsent("code", () => this._code);
+    data.putIfAbsent("new_password", () => this._password);
+    final progress = ProgressHUD.of(context);
+    progress?.show();
+    ApiService().postDataNoHeader(ApiUrl().resetPassword(), data).then((value) {
+      PopUpHelper(
+              context, "Password Reset", "Successfully resetted your password")
+          .showMessageDialogWith("OK", () {
+        Navigator.pop(context);
+      })();
+    }).onError((error, stackTrace) {
+      PopUpHelper(context, "Password Reset", error.toString())
+          .showMessageDialog("OK");
+    }).whenComplete(() {
+      progress?.dismiss();
     });
-    Navigator.pop(context);
+  }
+
+  void initResetApiCall(BuildContext context) {
+    Map<String, String> data = new Map();
+    data.putIfAbsent("phone_number", () => widget._phoneNumber);
+    final progress = ProgressHUD.of(context);
+    progress?.show();
+    ApiService()
+        .postDataNoHeader(ApiUrl().initPasswordReset(), data)
+        .then((value) {
+      String message = value["message"];
+      PopUpHelper(context, "Verification Code", message)
+          .showMessageDialog("OK");
+    }).onError((error, stackTrace) {
+      PopUpHelper(context, "Password Reset", error.toString())
+          .showMessageDialog("OK");
+    }).whenComplete(() {
+      progress?.dismiss();
+    });
+  }
+
+  @override
+  void initState() {
+    this.initResetApiCall(context);
+    super.initState();
   }
 
   @override
@@ -45,18 +104,21 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
             backgroundColor: Colors.white,
             elevation: 0.0,
             leading: BackButton(color: secondaryColor)),
-        body: _buildMainContentView(context),
+        body: ProgressHUD(
+            child: Builder(
+          builder: (context) => _buildMainContentView(context),
+        )),
       ),
     );
   }
 
   //MARK: show dialog to confirm number inputted
-  void _startCheck() {
-    this._password = this._passwordController.text;
+  void _startCheck(BuildContext context) {
+    this._password = this._passwordController.text.trim();
     if (this._password.isEmpty) {
       return;
     }
-    this.startApiCall();
+    this.startApiCall(context);
   }
 
   Widget _buildMainContentView(context) {
@@ -110,6 +172,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
             Padding(
               padding: EdgeInsets.only(top: 32, right: 32, left: 32),
               child: TextFormField(
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(6),
+                ],
+                maxLength: 6,
                 maxLines: 1,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.text,
@@ -129,6 +195,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
               padding: EdgeInsets.only(top: 32, right: 32, left: 32),
               child: TextFormField(
                 maxLines: 1,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(6),
+                ],
+                maxLength: 6,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.text,
                 style: WidgetHelper.textStyle16,
@@ -148,7 +218,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
               child: TextButton(
                 style: WidgetHelper.raisedButtonStyle,
                 onPressed: () {
-                  this._startCheck();
+                  this._startCheck(context);
                 },
                 child: Text('Reset Password'),
               ),

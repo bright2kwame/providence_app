@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provident_insurance/model/db_operations.dart';
+import 'package:provident_insurance/model/user_model.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import '../constants/color.dart';
 import '../constants/image_resource.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key? key}) : super(key: key);
@@ -11,6 +14,19 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  User user = new User();
+
+  @override
+  void initState() {
+    DBOperations().getUser().then((value) {
+      print(value);
+      setState(() {
+        this.user = value;
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,26 +47,34 @@ class _SettingsPageState extends State<SettingsPage> {
                         shape: BoxShape.circle,
                         color: Colors.white.withAlpha(100)),
                     child: ClipOval(
-                      child: new Image(
-                        image: AssetImage(ImageResource.appLogoSmall),
-                        fit: BoxFit.cover,
-                        width: 100,
-                        height: 100,
-                      ),
+                      child: this.user.avatar.isEmpty
+                          ? Image.asset(
+                              ImageResource.appLogoSmall,
+                              fit: BoxFit.scaleDown,
+                              width: 100,
+                              height: 100,
+                            )
+                          : new Image(
+                              image:
+                                  CachedNetworkImageProvider(this.user.avatar),
+                              fit: BoxFit.cover,
+                              width: 100,
+                              height: 100,
+                            ),
                     ),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(4),
                   child: Text(
-                    "Kwame Dela",
+                    this.user.fullName,
                     style: WidgetHelper.textStyle20AcensWhite,
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(4),
                   child: Text(
-                    "bright_senior_provident.com.gh",
+                    this.user.email,
                     style: WidgetHelper.textStyle12White,
                   ),
                 )

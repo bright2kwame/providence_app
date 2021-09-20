@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provident_insurance/api/parse_data.dart';
 import 'package:provident_insurance/home/home_tab_screen.dart';
+import 'package:provident_insurance/model/db_operations.dart';
+import 'package:provident_insurance/model/user_model.dart';
 import 'package:provident_insurance/onboarding/reset_password_screen.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
@@ -7,6 +10,10 @@ import 'package:provident_insurance/util/validator.dart';
 import 'package:provident_insurance/constants/text_constant.dart';
 import 'package:provident_insurance/constants/color.dart';
 import '../constants/image_resource.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:provident_insurance/api/api_service.dart';
+import 'package:provident_insurance/api/api_url.dart';
+import 'package:provident_insurance/util/pop_up_helper.dart';
 
 class PasswordLoginScreen extends StatefulWidget {
   final String _phoneNumber;
@@ -18,18 +25,29 @@ class PasswordLoginScreen extends StatefulWidget {
 class _PasswordLoginScreenState extends State<PasswordLoginScreen>
     with TickerProviderStateMixin {
   TextEditingController _passwordController = new TextEditingController();
-  var _isLoading = false;
   FocusNode _focusPassword = new FocusNode();
   String _password = "";
 
   //MAKE: api call here
-  void startApiCall() {
-    setState(() {
-      this._isLoading = true;
+  void startApiCall(BuildContext context) {
+    Map<String, String> data = new Map();
+    data.putIfAbsent("phone_number", () => widget._phoneNumber);
+    data.putIfAbsent("password", () => this._password);
+    final progress = ProgressHUD.of(context);
+    progress?.show();
+    ApiService().postDataNoHeader(ApiUrl().login(), data).then((value) {
+      print(value);
+      var result = value["results"];
+      DBOperations().insertUser(ParseApiData().parseUser(result));
+      Navigator.pop(context);
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context) => new HomeTabScreen()));
+    }).onError((error, stackTrace) {
+      PopUpHelper(context, "Login Failed", error.toString())
+          .showMessageDialog("OK");
+    }).whenComplete(() {
+      progress?.dismiss();
     });
-    Navigator.pop(context);
-    Navigator.of(context).push(new MaterialPageRoute(
-        builder: (BuildContext context) => new HomeTabScreen()));
   }
 
   @override
@@ -42,18 +60,21 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
             backgroundColor: Colors.white,
             elevation: 0.0,
             leading: BackButton(color: secondaryColor)),
-        body: _buildMainContentView(context),
+        body: ProgressHUD(
+            child: Builder(
+          builder: (context) => _buildMainContentView(context),
+        )),
       ),
     );
   }
 
   //MARK: show dialog to confirm number inputted
-  void _startCheck() {
+  void _startCheck(BuildContext context) {
     this._password = this._passwordController.text;
     if (this._password.isEmpty) {
       return;
     }
-    this.startApiCall();
+    this.startApiCall(context);
   }
 
   //MARK: take user to terms page
@@ -108,7 +129,7 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
                 onSaved: (val) => this._password = val!,
                 controller: this._passwordController,
                 obscureText: true,
-                decoration: AppInputDecorator.boxDecorate("Enter 4 digit pin"),
+                decoration: AppInputDecorator.boxDecorate("Enter 6 digit pin"),
               ),
             ),
             Row(
@@ -134,7 +155,7 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
               child: TextButton(
                 style: WidgetHelper.raisedButtonStyle,
                 onPressed: () {
-                  this._startCheck();
+                  this._startCheck(context);
                 },
                 child: Text('Login'),
               ),

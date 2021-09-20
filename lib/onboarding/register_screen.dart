@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:provident_insurance/onboarding/password_login_screen.dart';
+import 'package:provident_insurance/api/parse_data.dart';
+import 'package:provident_insurance/home/home_tab_screen.dart';
+import 'package:provident_insurance/model/db_operations.dart';
+import 'package:provident_insurance/util/pop_up_helper.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
 import 'package:provident_insurance/constants/text_constant.dart';
 import 'package:provident_insurance/constants/color.dart';
 import '../constants/image_resource.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:provident_insurance/api/api_service.dart';
+import 'package:provident_insurance/api/api_url.dart';
+import 'package:flutter/services.dart';
 
 class RegisterScreen extends StatefulWidget {
   final String phoneNumber;
@@ -21,23 +29,48 @@ class _RegisterScreenState extends State<RegisterScreen>
   TextEditingController _passwordController = new TextEditingController();
   TextEditingController _confirmPasswordController =
       new TextEditingController();
-  var _isLoading = false;
+  TextEditingController _firstNameController = new TextEditingController();
+  TextEditingController _lastNameController = new TextEditingController();
   FocusNode _focusEmail = new FocusNode();
   FocusNode _focusPassword = new FocusNode();
   FocusNode _focusConfirmPassword = new FocusNode();
+  FocusNode _focusFirstName = new FocusNode();
+  FocusNode _focusLastName = new FocusNode();
   String _emailAddress = "";
+  String _firstName = "";
+  String _lastName = "";
   String _password = "";
   String _confirmedPassword = "";
 
   //MAKE: api call here
-  void startApiCall() {
-    setState(() {
-      this._isLoading = true;
+  void startApiCall(BuildContext context) {
+    Map<String, String> data = new Map();
+    data.putIfAbsent("phone_number", () => widget.phoneNumber);
+    data.putIfAbsent("password", () => this._password);
+    data.putIfAbsent("first_name", () => this._firstName);
+    data.putIfAbsent("last_name", () => this._lastName);
+    data.putIfAbsent("email", () => this._emailAddress);
+    final progress = ProgressHUD.of(context);
+    progress?.show();
+    ApiService()
+        .postDataNoHeader(ApiUrl().completeSignUp(), data)
+        .then((value) {
+      print(value);
+      var result = value["results"];
+      DBOperations().insertUser(ParseApiData().parseUser(result));
+      Navigator.pushAndRemoveUntil<dynamic>(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => HomeTabScreen(),
+        ),
+        (route) => false,
+      );
+    }).onError((error, stackTrace) {
+      PopUpHelper(context, "Account Creation Failed", error.toString())
+          .showMessageDialog("OK");
+    }).whenComplete(() {
+      progress?.dismiss();
     });
-
-    // Navigator.of(context).push(new MaterialPageRoute(
-    //     builder: (BuildContext context) =>
-    //         new PasswordLoginScreen(this._phoneNumber)));
   }
 
   @override
@@ -50,26 +83,58 @@ class _RegisterScreenState extends State<RegisterScreen>
             backgroundColor: Colors.white,
             elevation: 0.0,
             leading: BackButton(color: secondaryColor)),
-        body: _buildMainContentView(context),
+        body: ProgressHUD(
+            child: Builder(
+          builder: (context) => _buildMainContentView(context),
+        )),
       ),
     );
   }
 
   //MARK: show dialog to confirm number inputted
-  void _startCheck() {
-    this._emailAddress = this._emailController.text;
-    this._password = this._passwordController.text;
-    this._confirmedPassword = this._confirmPasswordController.text;
+  void _startCheck(BuildContext context) {
+    this._emailAddress = this._emailController.text.trim();
+    this._password = this._passwordController.text.trim();
+    this._confirmedPassword = this._confirmPasswordController.text.trim();
+    this._firstName = this._firstNameController.text.trim();
+    this._lastName = this._lastNameController.text.trim();
 
-    if (this._emailAddress.isEmpty) {
-      print("No number available");
+    if (!Validator().isValidEmail(this._emailAddress)) {
+      PopUpHelper(context, "Required Field", "Provide a valid email address")
+          .showMessageDialog("OK");
       return;
     }
-    this.startApiCall();
+
+    if (this._firstName.isEmpty || this._lastName.isEmpty) {
+      PopUpHelper(context, "Required Field", "Provide name")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (this._password.isEmpty) {
+      PopUpHelper(context, "Required Field", "Provide a valid password")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (this._password != this._confirmedPassword) {
+      PopUpHelper(context, "Required Field", "Passwords do not match")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    this.startApiCall(context);
   }
 
   //MARK: take user to terms page
-  void _openTermsPage() {}
+  void _openTermsPage() async {
+    const url = 'https://www.providentgh.com/';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   Widget _buildMainContentView(context) {
     return new SafeArea(
@@ -95,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 child: Text(
                   "Register",
                   style: new TextStyle(
-                      fontSize: 40.0,
+                      fontSize: 30.0,
                       fontFamily: TextConstant.roboto,
                       color: secondaryColor),
                 ),
@@ -112,7 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 onFieldSubmitted: (String value) {
                   _focusEmail.unfocus();
                 },
-                validator: (val) => Validator().validateMobile(val!),
+                validator: (val) => Validator().validateEmail(val!),
                 onSaved: (val) => this._emailAddress = val!,
                 controller: this._emailController,
                 decoration:
@@ -123,6 +188,44 @@ class _RegisterScreenState extends State<RegisterScreen>
               padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child: TextFormField(
                 maxLines: 1,
+                textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.name,
+                style: WidgetHelper.textStyle16,
+                textAlign: TextAlign.left,
+                onFieldSubmitted: (String value) {
+                  _focusFirstName.unfocus();
+                },
+                validator: (val) => Validator().validateName(val!),
+                onSaved: (val) => this._firstName = val!,
+                controller: this._firstNameController,
+                decoration: AppInputDecorator.boxDecorate("Enter first name"),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: TextFormField(
+                maxLines: 1,
+                textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.name,
+                style: WidgetHelper.textStyle16,
+                textAlign: TextAlign.left,
+                onFieldSubmitted: (String value) {
+                  _focusLastName.unfocus();
+                },
+                validator: (val) => Validator().validateName(val!),
+                onSaved: (val) => this._lastName = val!,
+                controller: this._lastNameController,
+                decoration: AppInputDecorator.boxDecorate("Enter last name"),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: TextFormField(
+                maxLines: 1,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(6),
+                ],
+                maxLength: 6,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.visiblePassword,
                 style: WidgetHelper.textStyle16,
@@ -142,6 +245,10 @@ class _RegisterScreenState extends State<RegisterScreen>
               padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child: TextFormField(
                 maxLines: 1,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(6),
+                ],
+                maxLength: 6,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.visiblePassword,
                 style: WidgetHelper.textStyle16,
@@ -161,7 +268,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               child: TextButton(
                 style: WidgetHelper.raisedButtonStyle,
                 onPressed: () {
-                  this._startCheck();
+                  this._startCheck(context);
                 },
                 child: Text('Create Account'),
               ),

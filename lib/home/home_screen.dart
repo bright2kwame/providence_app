@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provident_insurance/model/db_operations.dart';
+import 'package:provident_insurance/model/user_model.dart';
 import 'package:provident_insurance/policy/add_policy_screen.dart';
 import 'package:provident_insurance/policy/file_claim_screen.dart';
 import 'package:provident_insurance/policy/policies_screen.dart';
@@ -6,8 +8,8 @@ import 'package:provident_insurance/policy/policy_quote.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import '../constants/color.dart';
 import '../constants/image_resource.dart';
-import 'package:provident_insurance/onboarding/login_screen.dart';
 import 'card_item.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -17,6 +19,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  User user = new User();
+
+  @override
+  void initState() {
+    DBOperations().getUser().then((value) {
+      print(value);
+      setState(() {
+        this.user = value;
+      });
+    });
+    super.initState();
+  }
+
   //MARK: navigate to policies
   void _navigateToPolicies() {
     Navigator.of(context).push(new MaterialPageRoute(
@@ -65,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: EdgeInsets.all(8),
                         child: Container(
                           decoration: BoxDecoration(
                               border: Border.all(
@@ -74,26 +89,35 @@ class _HomePageState extends State<HomePage> {
                               shape: BoxShape.circle,
                               color: Colors.white.withAlpha(100)),
                           child: ClipOval(
-                            child: new Image(
-                              image: AssetImage(ImageResource.appLogoSmall),
-                              fit: BoxFit.scaleDown,
-                              width: 100,
-                              height: 100,
-                            ),
+                            child: this.user.avatar.isEmpty
+                                ? Image.asset(
+                                    ImageResource.appLogoSmall,
+                                    fit: BoxFit.scaleDown,
+                                    width: 100,
+                                    height: 100,
+                                  )
+                                : new Image(
+                                    image: CachedNetworkImageProvider(
+                                        this.user.avatar),
+                                    fit: BoxFit.cover,
+                                    width: 100,
+                                    height: 100,
+                                  ),
                           ),
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.all(8),
+                        padding: EdgeInsets.only(
+                            left: 8, right: 8, top: 4, bottom: 4),
                         child: Text(
-                          "Kwame Dela",
+                          this.user.fullName,
                           style: WidgetHelper.textStyle16White,
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(bottom: 8, left: 8, right: 8),
                         child: Text(
-                          "Policy ID: 213313",
+                          "Phone: ${this.user.phone}",
                           style: WidgetHelper.textStyle12White,
                         ),
                       )

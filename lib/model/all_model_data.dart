@@ -14,7 +14,7 @@ class ManageDatabase {
       onCreate: (db, version) {
         // Run the CREATE TABLE statement on the database.
         return db.execute(
-          'CREATE TABLE users(id INTEGER PRIMARY KEY, firstName TEXT, lastName TEXT)',
+          'CREATE TABLE users(id INTEGER PRIMARY KEY, firstName TEXT, lastName TEXT, fullName TEXT, email TEXT, phone TEXT, avatar TEXT, token TEXT)',
         );
       },
       // Set the version. This executes the onCreate function and provides a
