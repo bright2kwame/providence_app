@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                       child: Container(
                         width: (MediaQuery.of(context).size.width - 32) / 3,
                         child: ProfileCardItem(
-                            "Manage Policy", Icons.manage_accounts),
+                            "Renew Policy", Icons.manage_accounts),
                       ),
                     ),
                     GestureDetector(
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                       child: Container(
                         width: (MediaQuery.of(context).size.width - 32) / 3,
                         child: ProfileCardItem(
-                            "New Policy", Icons.new_label_outlined),
+                            "Buy Policy", Icons.new_label_outlined),
                       ),
                     )
                   ],
@@ -271,15 +271,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _downLoadSticker(BuildContext buildContext) {
+    this._vehicleNumber = this._vehicleNumberController.text.trim();
+    if (this._vehicleNumber.isEmpty) {
+      PopUpHelper(context, "Sticker", "Provide vehicle number")
+          .showMessageDialog("OK");
+      return;
+    }
+    Navigator.pop(context);
+
     Map<String, String> data = new Map();
     data.putIfAbsent("vehicle_registration_number", () => this._vehicleNumber);
     ApiService.get(this.user.token)
         .postData(ApiUrl().getPolicySticker(), data)
         .then((value) {
-          print(value);
-          Policy policy = ParseApiData().parsePolicy(value["results"]);
-          if (policy.stickerUrl.isNotEmpty) {
-            this._openStickerPage(policy.stickerUrl);
+          String responseCode = value["response_code"];
+          String policySticker = value["results"]["sticker_url"].toString();
+          String policyCert = value["results"]["certificate_url"].toString();
+          String policySchedule = value["results"]["schedule_url"].toString();
+          if (responseCode == "100") {
+            this._showDownloadOption(policySticker, policyCert, policySchedule);
           } else {
             PopUpHelper(context, "Policy",
                     "No sticker found fo this verhicle number")
@@ -291,6 +301,56 @@ class _HomePageState extends State<HomePage> {
           print(error);
           PopUpHelper(context, "Policy", "Failed to download policy")
               .showMessageDialog("OK");
+        });
+  }
+
+  _showDownloadOption(String stickerUrl, String certUrl, String scheduleUrl) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SafeArea(
+              child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
+                child: Text(
+                  "Select Download Types",
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              stickerUrl.isNotEmpty
+                  ? ListTile(
+                      leading: new Icon(Icons.sticky_note_2),
+                      title: new Text('Download Sticker'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        this._openStickerPage(stickerUrl);
+                      },
+                    )
+                  : Container(),
+              certUrl.isNotEmpty
+                  ? ListTile(
+                      leading: new Icon(Icons.reviews_sharp),
+                      title: new Text('View Certificate'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        this._openStickerPage(certUrl);
+                      },
+                    )
+                  : Container(),
+              scheduleUrl.isNotEmpty
+                  ? ListTile(
+                      leading: new Icon(Icons.event),
+                      title: new Text('View Schedule'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        this._openStickerPage(scheduleUrl);
+                      },
+                    )
+                  : Container(),
+            ],
+          ));
         });
   }
 

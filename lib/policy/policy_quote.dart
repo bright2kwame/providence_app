@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:provident_insurance/api/api_service.dart';
 import 'package:provident_insurance/api/api_url.dart';
@@ -310,6 +311,9 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                                 left: 0.0, right: 0.0, top: 16.0),
                             child: new TextFormField(
                               autofocus: false,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
                               controller: _phoneNumberController,
                               decoration: AppInputDecorator.boxDecorate(
                                   "Enter phone number"),
@@ -470,6 +474,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
             controller: _sumInsuredController,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter sum insured"),
             keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -599,6 +604,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
             controller: _manufacturingYearController,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             autofocus: false,
             decoration:
                 AppInputDecorator.boxDecorate("Enter manufaturing year"),
@@ -943,7 +949,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
     progress?.show();
 
     ApiService.get(this.user.token)
-        .postData(ApiUrl().buyPolicy(), data)
+        .postData(ApiUrl().getQuoteUrl(), data)
         .then((value) {
       String amount = value["results"]["premium"];
       String quoteId = value["results"]["quote_id"];

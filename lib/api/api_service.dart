@@ -43,8 +43,9 @@ class ApiService {
       if (statusCode == "102" || statusCode == "100" || statusCode == "101") {
         return data;
       } else {
-        throw Exception(
-            data["detail"] != null ? data["detail"] : data.toString());
+        throw Exception(data["detail"] != null
+            ? data["detail"].toString()
+            : data.toString());
       }
     });
   }

@@ -46,7 +46,7 @@ class ApiUrl {
 
   //MARK: init password reset
   String initPasswordReset() {
-    return getBaseUrl() + "users/​​reset_password_send_sms/";
+    return getBaseUrl() + "users/reset_password_send_sms/";
   }
 
   //MARK: password reset
@@ -116,11 +116,16 @@ class ApiUrl {
 
   //MARK: get policy sticker
   String getPolicySticker() {
-    return getBaseUrl() + "users/get_policy_sticker/";
+    return getBaseUrl() + "users/download_sticker/";
   }
 
   //MARK: get email quote
   String getEmailPolicyQuote() {
-    return getBaseUrl() + "users/get_policy_sticker/";
+    return getBaseUrl() + "users/email_quote/";
+  }
+
+  //MARK: get quote
+  String getQuoteUrl() {
+    return getBaseUrl() + "users/get_quote/";
   }
 }

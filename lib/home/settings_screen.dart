@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provident_insurance/model/db_operations.dart';
 import 'package:provident_insurance/model/user_model.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/color.dart';
 import '../constants/image_resource.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -107,6 +108,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             topRight: Radius.circular(16)),
                       ),
                       child: ListTile(
+                        onTap: () {
+                          this._openUrlPage("https://www.providentgh.com/");
+                        },
                         title: Text("Privacy & Security"),
                         leading: Icon(
                           Icons.privacy_tip,
@@ -132,6 +136,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             topRight: Radius.circular(0)),
                       ),
                       child: ListTile(
+                        onTap: () {
+                          this._openUrlPage("https://www.providentgh.com/");
+                        },
                         title: Text("About Us"),
                         leading: Icon(
                           Icons.compress_outlined,
@@ -157,6 +164,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             topRight: Radius.circular(0)),
                       ),
                       child: ListTile(
+                        onTap: () {
+                          this._openUrlPage("https://www.providentgh.com/");
+                        },
                         title: Text("Help & Support"),
                         leading: Icon(
                           Icons.help_center_outlined,
@@ -182,6 +192,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             topRight: Radius.circular(0)),
                       ),
                       child: ListTile(
+                        onTap: () {
+                          this._openUrlPage("https://www.providentgh.com/");
+                        },
                         title: Text("Contact Us"),
                         leading: Icon(
                           Icons.contact_phone_outlined,
@@ -207,6 +220,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             bottomRight: Radius.circular(16)),
                       ),
                       child: ListTile(
+                        onTap: () {
+                          this._openUrlPage("https://www.providentgh.com/");
+                        },
                         title: Text("Terms & Conditions"),
                         leading: Icon(
                           Icons.policy_outlined,
@@ -228,5 +244,14 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
+  }
+
+  //MARK: open page
+  void _openUrlPage(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

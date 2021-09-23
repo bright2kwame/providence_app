@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:provident_insurance/api/api_service.dart';
 import 'package:provident_insurance/api/api_url.dart';
@@ -314,6 +315,10 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                             child: new TextFormField(
                               autofocus: false,
                               controller: _phoneNumberController,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              keyboardType: TextInputType.number,
                               decoration: AppInputDecorator.boxDecorate(
                                   "Enter phone number"),
                             )),
@@ -473,6 +478,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
             controller: _sumInsuredController,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter sum insured"),
             keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -593,6 +599,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
             controller: _numberOfSeatsController,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter Number of Seats"),
             keyboardType: TextInputType.emailAddress,
@@ -603,6 +610,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
           child: new TextFormField(
             controller: _manufacturingYearController,
             autofocus: false,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration:
                 AppInputDecorator.boxDecorate("Enter manufaturing year"),
             keyboardType: TextInputType.emailAddress,

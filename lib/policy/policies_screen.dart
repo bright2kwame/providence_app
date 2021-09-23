@@ -378,11 +378,10 @@ class _PolicieScreenState extends State<PolicieScreen> {
     ApiService.get(this.user.token)
         .postData(ApiUrl().getExistingPolicy(), data)
         .then((value) {
-          print(value);
-          String policyData = value["results"];
+          var policyData = value["results"];
           Policy policy = ParseApiData().parsePolicy(policyData);
           String messageToDisplay =
-              "Vehicle: ${policy.vehicleMake}\nOwner: ${policy.ownerName}\nTotal Premium: ${policy.totalPremium}";
+              "Vehicle: ${policy.vehicleMake}\nOwner: ${policy.ownerName}\nTotal Premium: ${policy.totalPremium}\nRenewal Date: ${policy.renewalDate.substring(0, 10)}";
           PopUpHelper(
                   context, "Policy #" + policy.policyNumber, messageToDisplay)
               .showMessageDialogWith("ADD POLICY", () {
@@ -392,7 +391,7 @@ class _PolicieScreenState extends State<PolicieScreen> {
         .whenComplete(() {})
         .onError((error, stackTrace) {
           print(error);
-          PopUpHelper(context, "Policy", "Failed to get managed policies")
+          PopUpHelper(context, "Policy", "Failed to get policy")
               .showMessageDialog("OK");
         });
   }

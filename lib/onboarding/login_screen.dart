@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provident_insurance/api/api_service.dart';
 import 'package:provident_insurance/api/api_url.dart';
 import 'package:provident_insurance/onboarding/password_login_screen.dart';
@@ -26,7 +27,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   TextEditingController _numberController = new TextEditingController();
-  FocusNode _focusNumber = new FocusNode();
   String _phoneNumber = "";
 
   //MAKE: api call here
@@ -40,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen>
     data.putIfAbsent("phone_number", () => _phoneNumber);
     progress?.show();
     ApiService().postDataNoHeader(ApiUrl().checkPhone(), data).then((value) {
-      print(value);
       String responseCode = value["response_code"];
       if (responseCode == "100") {
         Navigator.of(context).push(new MaterialPageRoute(
@@ -86,8 +85,10 @@ class _LoginScreenState extends State<LoginScreen>
 
   //MARK: show dialog to confirm number inputted
   void _startCheck(BuildContext context) {
-    this._phoneNumber = this._numberController.text;
+    this._phoneNumber = this._numberController.text.trim();
     if (this._phoneNumber.isEmpty) {
+      PopUpHelper(context, "Login", "Provide phone number")
+          .showMessageDialog("OK");
       return;
     }
 
@@ -136,18 +137,16 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              child: TextFormField(
+              child: TextField(
                 maxLines: 1,
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.number,
                 style: WidgetHelper.textStyle16,
                 textAlign: TextAlign.left,
-                onFieldSubmitted: (String value) {
-                  _focusNumber.unfocus();
-                },
-                validator: (val) => Validator().validateMobile(val!),
-                onSaved: (val) => this._phoneNumber = val!,
                 controller: this._numberController,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
                 decoration: AppInputDecorator.boxDecorate("Enter phone number"),
               ),
             ),

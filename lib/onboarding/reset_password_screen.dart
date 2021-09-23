@@ -29,6 +29,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   String _password = "";
   String _passwordAgain = "";
   String _code = "";
+  late BuildContext buildContext;
 
   //MAKE: api call here
   void startApiCall(BuildContext context) {
@@ -56,11 +57,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
     final progress = ProgressHUD.of(context);
     progress?.show();
     ApiService().postDataNoHeader(ApiUrl().resetPassword(), data).then((value) {
-      PopUpHelper(
-              context, "Password Reset", "Successfully resetted your password")
+      PopUpHelper(context, "Password Reset", value["detail"].toString())
           .showMessageDialogWith("OK", () {
         Navigator.pop(context);
-      })();
+      });
     }).onError((error, stackTrace) {
       PopUpHelper(context, "Password Reset", error.toString())
           .showMessageDialog("OK");
@@ -69,20 +69,24 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
     });
   }
 
-  void initResetApiCall(BuildContext context) {
+  void initResetApiCall() {
+    String url = ApiUrl().initPasswordReset().trim();
     Map<String, String> data = new Map();
     data.putIfAbsent("phone_number", () => widget._phoneNumber);
-    final progress = ProgressHUD.of(context);
+
+    final progress = ProgressHUD.of(buildContext);
     progress?.show();
-    ApiService()
-        .postDataNoHeader(ApiUrl().initPasswordReset(), data)
-        .then((value) {
-      String message = value["message"];
+    ApiService().postDataNoHeader(url, data).then((value) {
+      String message = value["results"];
       PopUpHelper(context, "Verification Code", message)
           .showMessageDialog("OK");
     }).onError((error, stackTrace) {
-      PopUpHelper(context, "Password Reset", error.toString())
-          .showMessageDialog("OK");
+      print(error);
+      print(stackTrace.toString());
+      PopUpHelper(context, "Password Reset", "Failed to send verification code")
+          .showMessageDialogWith("RESEND CODE", () {
+        this.initResetApiCall();
+      });
     }).whenComplete(() {
       progress?.dismiss();
     });
@@ -90,12 +94,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
 
   @override
   void initState() {
-    this.initResetApiCall(context);
+    WidgetsBinding.instance!
+        .addPostFrameCallback((_) => this.initResetApiCall());
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext buildContext) {
     return new Container(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -106,22 +111,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
             leading: BackButton(color: secondaryColor)),
         body: ProgressHUD(
             child: Builder(
-          builder: (context) => _buildMainContentView(context),
+          builder: (buildContext) => _buildMainContentView(buildContext),
         )),
       ),
     );
   }
 
-  //MARK: show dialog to confirm number inputted
-  void _startCheck(BuildContext context) {
-    this._password = this._passwordController.text.trim();
-    if (this._password.isEmpty) {
-      return;
-    }
-    this.startApiCall(context);
-  }
-
   Widget _buildMainContentView(context) {
+    this.buildContext = context;
     return new SafeArea(
         child: new Container(
       child: new SingleChildScrollView(
@@ -159,6 +156,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                 keyboardType: TextInputType.number,
                 style: WidgetHelper.textStyle16,
                 textAlign: TextAlign.left,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(6),
+                ],
                 onFieldSubmitted: (String value) {
                   _focusVerificationCode.unfocus();
                 },
@@ -218,7 +218,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
               child: TextButton(
                 style: WidgetHelper.raisedButtonStyle,
                 onPressed: () {
-                  this._startCheck(context);
+                  this.startApiCall(context);
                 },
                 child: Text('Reset Password'),
               ),

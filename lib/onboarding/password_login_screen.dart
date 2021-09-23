@@ -14,6 +14,7 @@ import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:provident_insurance/api/api_service.dart';
 import 'package:provident_insurance/api/api_url.dart';
 import 'package:provident_insurance/util/pop_up_helper.dart';
+import 'package:flutter/services.dart';
 
 class PasswordLoginScreen extends StatefulWidget {
   final String _phoneNumber;
@@ -39,9 +40,14 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
       print(value);
       var result = value["results"];
       DBOperations().insertUser(ParseApiData().parseUser(result));
-      Navigator.pop(context);
-      Navigator.of(context).push(new MaterialPageRoute(
-          builder: (BuildContext context) => new HomeTabScreen()));
+
+      Navigator.pushAndRemoveUntil<dynamic>(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => HomeTabScreen(),
+        ),
+        (route) => false,
+      );
     }).onError((error, stackTrace) {
       PopUpHelper(context, "Login Failed", error.toString())
           .showMessageDialog("OK");
@@ -70,8 +76,10 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
 
   //MARK: show dialog to confirm number inputted
   void _startCheck(BuildContext context) {
-    this._password = this._passwordController.text;
+    this._password = this._passwordController.text.trim();
     if (this._password.isEmpty) {
+      PopUpHelper(context, "Login", "Provide a valid pin")
+          .showMessageDialog("OK");
       return;
     }
     this.startApiCall(context);
@@ -118,6 +126,9 @@ class _PasswordLoginScreenState extends State<PasswordLoginScreen>
               padding: EdgeInsets.only(top: 32, right: 32, left: 32),
               child: TextFormField(
                 maxLines: 1,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(6),
+                ],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.text,
                 style: WidgetHelper.textStyle16,

@@ -118,7 +118,7 @@ class NetworkUtil {
   //MARK: handle response
   Future<dynamic> handleResponse(http.Response response) async {
     final int statusCode = response.statusCode;
-    print("STATUS: $statusCode DATA: ${json.decode(response.body)}");
+    print("API STATUS: $statusCode DATA: ${response.body}");
     if (statusCode < 200) {
       throw new Exception("Error while connecting to server.");
     } else if (statusCode >= 401 && statusCode <= 404) {

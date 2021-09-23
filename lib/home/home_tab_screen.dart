@@ -43,9 +43,9 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
         centerTitle: true,
         elevation: 0,
       ),
-      drawer: Container(
-          width: MediaQuery.of(context).size.width * 0.75,
-          child: Drawer(child: DrawerMenuPage())),
+      // drawer: Container(
+      //     width: MediaQuery.of(context).size.width * 0.75,
+      //     child: Drawer(child: DrawerMenuPage())),
       body: IndexedStack(
         index: _currentIndex,
         children: _children,
