@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provident_insurance/api/api_service.dart';
+import 'package:provident_insurance/api/api_url.dart';
+import 'package:provident_insurance/api/parse_data.dart';
 import 'package:provident_insurance/model/db_operations.dart';
+import 'package:provident_insurance/model/policy_model.dart';
 import 'package:provident_insurance/model/user_model.dart';
+import 'package:provident_insurance/payments/payments_screen.dart';
 import 'package:provident_insurance/policy/add_policy_screen.dart';
 import 'package:provident_insurance/policy/file_claim_screen.dart';
 import 'package:provident_insurance/policy/policies_screen.dart';
 import 'package:provident_insurance/policy/policy_quote.dart';
+import 'package:provident_insurance/util/input_decorator.dart';
+import 'package:provident_insurance/util/pop_up_helper.dart';
+import 'package:provident_insurance/util/validator.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/color.dart';
 import '../constants/image_resource.dart';
 import 'card_item.dart';
@@ -20,6 +29,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   User user = new User();
+  TextEditingController _vehicleNumberController = new TextEditingController();
+  String _vehicleNumber = "";
 
   @override
   void initState() {
@@ -54,6 +65,12 @@ class _HomePageState extends State<HomePage> {
   void _navigateToFileClaim() {
     Navigator.of(context).push(new MaterialPageRoute(
         builder: (BuildContext context) => new FileClaimScreen()));
+  }
+
+  //MARK: navigate to payments
+  void _navigateToPayments() {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) => new PaymentsScreen()));
   }
 
   @override
@@ -180,15 +197,25 @@ class _HomePageState extends State<HomePage> {
                         child: ProfileCardItem("File Claim", Icons.reviews),
                       ),
                     ),
-                    Container(
-                      width: (MediaQuery.of(context).size.width - 32) / 3,
-                      child: ProfileCardItem(
-                          "Download Sticker", Icons.sticky_note_2),
+                    GestureDetector(
+                      onTap: () {
+                        this._showDownLoadSticker(context);
+                      },
+                      child: Container(
+                        width: (MediaQuery.of(context).size.width - 32) / 3,
+                        child: ProfileCardItem(
+                            "Download Sticker", Icons.sticky_note_2),
+                      ),
                     ),
-                    Container(
-                      width: (MediaQuery.of(context).size.width - 32) / 3,
-                      child:
-                          ProfileCardItem("Near Location", Icons.location_pin),
+                    GestureDetector(
+                      onTap: () {
+                        this._navigateToPayments();
+                      },
+                      child: Container(
+                        width: (MediaQuery.of(context).size.width - 32) / 3,
+                        child:
+                            ProfileCardItem("Payments", Icons.payment_outlined),
+                      ),
                     )
                   ],
                 )
@@ -198,5 +225,81 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  void _showDownLoadSticker(BuildContext buildContext) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
+                child: Text("Enter vehicle number"),
+              ),
+              Padding(
+                padding:
+                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
+                child: TextFormField(
+                  maxLines: 1,
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.text,
+                  style: WidgetHelper.textStyle16,
+                  textAlign: TextAlign.left,
+                  validator: (val) => Validator().validatePassword(val!),
+                  onSaved: (val) => this._vehicleNumber = val!,
+                  controller: this._vehicleNumberController,
+                  decoration:
+                      AppInputDecorator.boxDecorate("Vehicle Registration No."),
+                ),
+              ),
+              SafeArea(
+                  child: Padding(
+                padding: EdgeInsets.only(top: 64, left: 32, right: 32),
+                child: TextButton(
+                  style: WidgetHelper.raisedButtonStyle,
+                  onPressed: () {
+                    this._downLoadSticker(buildContext);
+                  },
+                  child: Text('Download Sticker'),
+                ),
+              ))
+            ],
+          );
+        });
+  }
+
+  void _downLoadSticker(BuildContext buildContext) {
+    Map<String, String> data = new Map();
+    data.putIfAbsent("vehicle_registration_number", () => this._vehicleNumber);
+    ApiService.get(this.user.token)
+        .postData(ApiUrl().getPolicySticker(), data)
+        .then((value) {
+          print(value);
+          Policy policy = ParseApiData().parsePolicy(value["results"]);
+          if (policy.stickerUrl.isNotEmpty) {
+            this._openStickerPage(policy.stickerUrl);
+          } else {
+            PopUpHelper(context, "Policy",
+                    "No sticker found fo this verhicle number")
+                .showMessageDialog("OK");
+          }
+        })
+        .whenComplete(() {})
+        .onError((error, stackTrace) {
+          print(error);
+          PopUpHelper(context, "Policy", "Failed to download policy")
+              .showMessageDialog("OK");
+        });
+  }
+
+  //MARK: take user to sticker page
+  void _openStickerPage(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

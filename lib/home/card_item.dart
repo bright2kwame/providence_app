@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provident_insurance/constants/color.dart';
+import 'package:provident_insurance/model/policy_model.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 
 class ProfileCardItem extends StatefulWidget {
@@ -105,9 +106,8 @@ class _DrawerCardItemState extends State<DrawerCardItem> {
 
 //MARK: CarouselCardItem
 class CarouselCardItem extends StatefulWidget {
-  final String title;
-  final Color color;
-  CarouselCardItem(this.title, this.color);
+  final Policy policy;
+  CarouselCardItem(this.policy);
 
   @override
   _CarouselCardItemState createState() => _CarouselCardItemState();
@@ -117,7 +117,7 @@ class _CarouselCardItemState extends State<CarouselCardItem> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: widget.color,
+      color: new Color(widget.policy.colour.hashCode),
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Colors.transparent, width: 0),
         borderRadius: BorderRadius.circular(8),
@@ -132,8 +132,8 @@ class _CarouselCardItemState extends State<CarouselCardItem> {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
               child: Text(
-                "PIC",
-                style: WidgetHelper.textStyle20AcensWhite,
+                "PROVIDENT INSURANCE",
+                style: WidgetHelper.textStyle12White,
               ),
             ),
             Expanded(child: Container()),
@@ -141,7 +141,7 @@ class _CarouselCardItemState extends State<CarouselCardItem> {
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
               child: Center(
                 child: Text(
-                  "2 3 5 6 7 6 8 8 9 0 1",
+                  widget.policy.policyNumber,
                   style: WidgetHelper.textStyle20AcensWhite,
                 ),
               ),
@@ -167,12 +167,12 @@ class _CarouselCardItemState extends State<CarouselCardItem> {
               child: Row(
                 children: [
                   Text(
-                    "Bright Ahedor",
+                    widget.policy.ownerName,
                     style: WidgetHelper.textStyle16AcensWhite,
                   ),
                   Expanded(child: Container()),
                   Text(
-                    "03/12/2021",
+                    widget.policy.renewalDate,
                     style: WidgetHelper.textStyle16AcensWhite,
                   )
                 ],

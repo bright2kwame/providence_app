@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provident_insurance/api/api_service.dart';
 import 'package:provident_insurance/api/api_url.dart';
@@ -12,9 +11,8 @@ import 'package:provident_insurance/util/pop_up_helper.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
-import 'package:provident_insurance/constants/text_constant.dart';
-import '../constants/image_resource.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PolicieScreen extends StatefulWidget {
   @override
@@ -25,12 +23,12 @@ class PolicieScreen extends StatefulWidget {
 
 class _PolicieScreenState extends State<PolicieScreen> {
   User user = new User();
-  var policies = [];
+  List<Policy> policies = [];
   var _currentPage = 0;
-  List colors = [Colors.red, Colors.green, Colors.amber, Colors.blue];
   TextEditingController _vehicleNumberController = new TextEditingController();
   FocusNode _vehicleNumberFocus = new FocusNode();
   String _vehicleNumber = "";
+  Policy _policy = new Policy();
 
   @override
   void initState() {
@@ -40,12 +38,15 @@ class _PolicieScreenState extends State<PolicieScreen> {
 
   void _getPolicies() {
     ApiService.get(this.user.token)
-        .getData(ApiUrl().updateAvatar())
+        .getData(ApiUrl().managePolicy())
         .then((value) {
-          print(value);
+          this.policies = [];
           value["results"].forEach((item) {
             this.policies.add(ParseApiData().parsePolicy(item));
           });
+          if (this.policies.isNotEmpty) {
+            this._policy = this.policies[0];
+          }
           setState(() {});
         })
         .whenComplete(() {})
@@ -103,13 +104,15 @@ class _PolicieScreenState extends State<PolicieScreen> {
           Expanded(child: Container()),
           Padding(padding: EdgeInsets.all(16)),
           new TextButton(
-              onPressed: () {
-                this._addExistingPolicy(context);
-              },
-              child: Text(
-                "Add Existing Policy",
-                style: WidgetHelper.textStyle16AcensColored,
-              )),
+            style: WidgetHelper.raisedButtonStyle,
+            onPressed: () {
+              this._addExistingPolicy(context);
+            },
+            child: Text(
+              "Add Existing Policy",
+              style: WidgetHelper.textStyle16AcensWhite,
+            ),
+          ),
           Expanded(child: Container()),
         ],
       ),
@@ -142,7 +145,6 @@ class _PolicieScreenState extends State<PolicieScreen> {
                   validator: (val) => Validator().validatePassword(val!),
                   onSaved: (val) => this._vehicleNumber = val!,
                   controller: this._vehicleNumberController,
-                  obscureText: true,
                   decoration:
                       AppInputDecorator.boxDecorate("Vehicle Registration No."),
                 ),
@@ -153,7 +155,7 @@ class _PolicieScreenState extends State<PolicieScreen> {
                 child: TextButton(
                   style: WidgetHelper.raisedButtonStyle,
                   onPressed: () {
-                    this._startAddingPlolicy(buildContext);
+                    this._getExistingPlolicy(buildContext);
                   },
                   child: Text('Add Policy'),
                 ),
@@ -187,6 +189,7 @@ class _PolicieScreenState extends State<PolicieScreen> {
                       enlargeCenterPage: true,
                       onPageChanged: (index, reason) {
                         setState(() {
+                          _policy = policies[index];
                           _currentPage = index;
                         });
                       },
@@ -195,9 +198,7 @@ class _PolicieScreenState extends State<PolicieScreen> {
                     items: policies.map((i) {
                       return Builder(
                         builder: (BuildContext context) {
-                          var activeColor =
-                              colors[new Random().nextInt(colors.length)];
-                          return CarouselCardItem(i, activeColor);
+                          return CarouselCardItem(i);
                         },
                       );
                     }).toList(),
@@ -226,7 +227,7 @@ class _PolicieScreenState extends State<PolicieScreen> {
             ),
           ),
           Container(
-              height: 435,
+              height: 500,
               child: Column(
                 children: [
                   Padding(
@@ -239,8 +240,8 @@ class _PolicieScreenState extends State<PolicieScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
                       child: ListTile(
-                        title: Text("Date Created"),
-                        subtitle: Text("Jan 21, 2021"),
+                        title: Text("Date Due"),
+                        subtitle: Text(this._policy.renewalDate),
                         leading: Icon(
                           Icons.date_range_outlined,
                           size: 32,
@@ -260,7 +261,7 @@ class _PolicieScreenState extends State<PolicieScreen> {
                       ),
                       child: ListTile(
                         title: Text("Policy Number"),
-                        subtitle: Text("1313123123"),
+                        subtitle: Text(this._policy.policyNumber),
                         leading: Icon(
                           Icons.format_list_numbered_outlined,
                           size: 32,
@@ -279,28 +280,8 @@ class _PolicieScreenState extends State<PolicieScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
                       child: ListTile(
-                        title: Text("Discount Earned"),
-                        subtitle: Text("GHS 0.0"),
-                        leading: Icon(
-                          Icons.disc_full_outlined,
-                          size: 32,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 0),
-                    child: Card(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.transparent, width: 0),
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
-                      ),
-                      child: ListTile(
                         title: Text("Total Due"),
-                        subtitle: Text("Jan 21, 2021"),
+                        subtitle: Text(this._policy.totalPremium),
                         leading: Icon(
                           Icons.summarize,
                           size: 32,
@@ -309,19 +290,74 @@ class _PolicieScreenState extends State<PolicieScreen> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 32),
-                    child: TextButton(
-                      style: WidgetHelper.raisedButtonStyle,
-                      onPressed: () {},
-                      child: Container(
-                          width: 200,
-                          child: Text(
-                            'PAY NOW',
-                            textAlign: TextAlign.center,
-                          )),
-                    ),
-                  ),
+                  this._policy.stickerUrl.isNotEmpty
+                      ? Padding(
+                          padding: EdgeInsets.only(top: 16),
+                          child: TextButton(
+                            style: WidgetHelper.raisedButtonStyle,
+                            onPressed: () {
+                              _openLinkPage(this._policy.stickerUrl);
+                            },
+                            child: Container(
+                                width: 200,
+                                child: Text(
+                                  'DOWNLOAD STICKER',
+                                  textAlign: TextAlign.center,
+                                )),
+                          ),
+                        )
+                      : Container(),
+                  this._policy.certificateUrl.isNotEmpty
+                      ? Padding(
+                          padding: EdgeInsets.only(top: 16),
+                          child: TextButton(
+                            style: WidgetHelper.raisedButtonStyle,
+                            onPressed: () {
+                              _openLinkPage(this._policy.certificateUrl);
+                            },
+                            child: Container(
+                                width: 200,
+                                child: Text(
+                                  'VIEW CERTIFICATE',
+                                  textAlign: TextAlign.center,
+                                )),
+                          ),
+                        )
+                      : Container(),
+                  this._policy.scheduleUrl.isNotEmpty
+                      ? Padding(
+                          padding: EdgeInsets.only(top: 16),
+                          child: TextButton(
+                            style: WidgetHelper.raisedButtonStyle,
+                            onPressed: () {
+                              _openLinkPage(this._policy.scheduleUrl);
+                            },
+                            child: Container(
+                                width: 200,
+                                child: Text(
+                                  'DOWNLOAD STICKER',
+                                  textAlign: TextAlign.center,
+                                )),
+                          ),
+                        )
+                      : Container(),
+                  this._policy.isRenewalDue
+                      ? Padding(
+                          padding: EdgeInsets.only(top: 16),
+                          child: TextButton(
+                            style: WidgetHelper.raisedButtonStyle,
+                            onPressed: () {
+                              _initPayment();
+                            },
+                            child: Container(
+                                width: 200,
+                                child: Text(
+                                  'PAY NOW',
+                                  textAlign: TextAlign.center,
+                                )),
+                          ),
+                        )
+                      : Container(),
                 ],
               ))
         ],
@@ -329,7 +365,7 @@ class _PolicieScreenState extends State<PolicieScreen> {
     ));
   }
 
-  void _startAddingPlolicy(BuildContext buildContext) {
+  void _getExistingPlolicy(BuildContext buildContext) {
     this._vehicleNumber = this._vehicleNumberController.text.trim();
     if (this._vehicleNumber.isEmpty) {
       PopUpHelper(context, "Policy", "Enter vehicle registration number")
@@ -340,10 +376,18 @@ class _PolicieScreenState extends State<PolicieScreen> {
     data.putIfAbsent("vehicle_registration_number", () => this._vehicleNumber);
     Navigator.pop(context);
     ApiService.get(this.user.token)
-        .postData(ApiUrl().addExistingPolicy(), data)
+        .postData(ApiUrl().getExistingPolicy(), data)
         .then((value) {
           print(value);
-          this._getPolicies();
+          String policyData = value["results"];
+          Policy policy = ParseApiData().parsePolicy(policyData);
+          String messageToDisplay =
+              "Vehicle: ${policy.vehicleMake}\nOwner: ${policy.ownerName}\nTotal Premium: ${policy.totalPremium}";
+          PopUpHelper(
+                  context, "Policy #" + policy.policyNumber, messageToDisplay)
+              .showMessageDialogWith("ADD POLICY", () {
+            this._addExistingPlolicy(buildContext);
+          });
         })
         .whenComplete(() {})
         .onError((error, stackTrace) {
@@ -351,5 +395,64 @@ class _PolicieScreenState extends State<PolicieScreen> {
           PopUpHelper(context, "Policy", "Failed to get managed policies")
               .showMessageDialog("OK");
         });
+  }
+
+  void _addExistingPlolicy(BuildContext buildContext) {
+    this._vehicleNumber = this._vehicleNumberController.text.trim();
+    Map<String, String> data = new Map();
+    data.putIfAbsent("vehicle_registration_number", () => this._vehicleNumber);
+    ApiService.get(this.user.token)
+        .postData(ApiUrl().addExistingPolicy(), data)
+        .then((value) {
+          print(value);
+          String message = value["message"];
+          PopUpHelper(context, "Added Policy", message)
+              .showMessageDialogWith("OK", () {
+            this._getPolicies();
+          });
+        })
+        .whenComplete(() {})
+        .onError((error, stackTrace) {
+          print(error);
+          PopUpHelper(context, "Policy", "Failed to get managed policies")
+              .showMessageDialog("OK");
+        });
+  }
+
+  void _initPayment() {
+    Map<String, String> data = new Map();
+    data.putIfAbsent(
+        "vehicle_registration_number", () => this._policy.vehicleNumber);
+    ApiService.get(this.user.token)
+        .postData(ApiUrl().renewPolicy(), data)
+        .then((value) {
+          print(value);
+          String paymentUrl = value["results"]["payment_url"].toString();
+          this._openPaymentPage(paymentUrl);
+        })
+        .whenComplete(() {})
+        .onError((error, stackTrace) {
+          print(error);
+          PopUpHelper(context, "Policy", "Failed to get managed policies")
+              .showMessageDialog("OK");
+        });
+  }
+
+  //MARK: take user to terms page
+  void _openPaymentPage(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  //MARK: take user to stcker url
+  void _openLinkPage(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

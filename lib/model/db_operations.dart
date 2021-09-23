@@ -8,11 +8,6 @@ class DBOperations {
   Future<void> insertUser(User user) async {
     // Get a reference to the database.
     final db = await ManageDatabase().initialise();
-
-    // Insert the User into the correct table. You might also specify the
-    // `conflictAlgorithm` to use in case the same user is inserted twice.
-    //
-    // In this case, replace any previous data.
     await db.insert(
       'users',
       user.toMap(),

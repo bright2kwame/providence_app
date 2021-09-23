@@ -386,7 +386,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onSaved: (val) => this._password = val!,
                   controller: this._passwordController,
                   obscureText: true,
-                  decoration: AppInputDecorator.boxDecorate("Current password"),
+                  decoration: AppInputDecorator.boxDecorate("Enter new number"),
                 ),
               ),
               Padding(
@@ -404,19 +404,21 @@ class _ProfilePageState extends State<ProfilePage> {
                   validator: (val) => Validator().validatePassword(val!),
                   controller: this._passwordAgainController,
                   obscureText: true,
-                  decoration: AppInputDecorator.boxDecorate("Repeat password"),
+                  decoration:
+                      AppInputDecorator.boxDecorate("Enter verification code"),
                 ),
               ),
-              Padding(
+              SafeArea(
+                  child: Padding(
                 padding: EdgeInsets.only(top: 64, left: 32, right: 32),
                 child: TextButton(
                   style: WidgetHelper.raisedButtonStyle,
                   onPressed: () {
                     this._startPassword(buildContext);
                   },
-                  child: Text('Change Password'),
+                  child: Text('Update Phone Number'),
                 ),
-              )
+              ))
             ],
           );
         });

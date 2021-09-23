@@ -22,8 +22,8 @@ class ApiService {
   /// @url, url to fetch data
   Future<dynamic> getData(String url) {
     return _netUtil.get(url, basicHeaders, utf8).then((dynamic data) {
-      var statusCode = data["response_code"];
-      print("STATUS: $statusCode DATA: $data");
+      var statusCode = data["response_code"].toString();
+      print("STATUS: $statusCode");
       if (statusCode == "100") {
         return data;
       } else {
@@ -56,7 +56,7 @@ class ApiService {
       var statusCode = data["response_code"];
       print("STATUS: $statusCode DATA: $data");
       if (statusCode == "100") {
-        return data["results"];
+        return data;
       } else {
         throw Exception(
             data["detail"] != null ? data["detail"] : data.toString());

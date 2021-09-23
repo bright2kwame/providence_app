@@ -5,6 +5,7 @@ import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:file_picker/file_picker.dart';
 
 class FileClaimScreen extends StatefulWidget {
   @override
@@ -92,7 +93,6 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
   static TextEditingController _repairerPhoneNumberController =
       new TextEditingController();
 
-  DateTime _selectedAccidentDate = DateTime.now();
   static final String _defAccidentDateDisplay = "Accident Date";
   String _selectedAccidentDateDisplay = _defAccidentDateDisplay;
 
@@ -192,7 +192,6 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     if (picked != null) {
       setState(() {
         if (isAccidentDate) {
-          _selectedAccidentDate = picked;
           this._selectedAccidentDateDisplay =
               DateFormat('yyyy-MM-dd').format(picked);
         }

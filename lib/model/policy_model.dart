@@ -1,20 +1,28 @@
 class Policy {
   String policyNumber = "";
   String vehicleMake = "";
+  String vehicleNumber = "";
   String ownerName = "";
   String renewalDate = "";
   bool isRenewalDue = false;
   String colour = "";
   String totalPremium = "";
+  String stickerUrl = "";
+  String certificateUrl = "";
+  String scheduleUrl = "";
 
   Policy({
     this.policyNumber = "",
     this.vehicleMake = "",
+    this.vehicleNumber = "",
     this.ownerName = "",
     this.renewalDate = "",
     this.isRenewalDue = false,
     this.colour = "",
     this.totalPremium = "",
+    this.stickerUrl = "",
+    this.certificateUrl = "",
+    this.scheduleUrl = "",
   });
 
   Policy.empty();
@@ -29,6 +37,9 @@ class Policy {
       'isRenewalDue': isRenewalDue,
       'colour': colour,
       'totalPremium': totalPremium,
+      'stickerUrl': stickerUrl,
+      'certificateUrl': certificateUrl,
+      'scheduleUrl': scheduleUrl,
     };
   }
 
