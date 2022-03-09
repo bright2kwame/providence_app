@@ -18,12 +18,28 @@ class ApiService {
     return _apiService;
   }
 
+  static ApiService getNoAuth() {
+    return _apiService;
+  }
+
+  //MARK: get items no auth
+  Future<dynamic> getDataNoAuth(String url) {
+    return _netUtil.getNoHeaders(url).then((dynamic data) {
+      var statusCode = data["response_code"].toString();
+      if (statusCode == "100") {
+        return data;
+      } else {
+        throw Exception(
+            data["detail"] != null ? data["detail"] : data.toString());
+      }
+    });
+  }
+
   //MARK: get list of items
   /// @url, url to fetch data
   Future<dynamic> getData(String url) {
     return _netUtil.get(url, basicHeaders, utf8).then((dynamic data) {
       var statusCode = data["response_code"].toString();
-      print("STATUS: $statusCode");
       if (statusCode == "100") {
         return data;
       } else {

@@ -31,7 +31,7 @@ class NetworkUtil {
   }
 
   //MARK: manage all get calls without headers
-  Future<dynamic> getNoHeaders(String url, {body, encoding}) async {
+  Future<dynamic> getNoHeaders(String url) async {
     var connectivityResult = await (new Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       throw new Exception(noInternetConnection);
@@ -118,7 +118,6 @@ class NetworkUtil {
   //MARK: handle response
   Future<dynamic> handleResponse(http.Response response) async {
     final int statusCode = response.statusCode;
-    print("API STATUS: $statusCode DATA: ${response.body}");
     if (statusCode < 200) {
       throw new Exception("Error while connecting to server.");
     } else if (statusCode >= 401 && statusCode <= 404) {

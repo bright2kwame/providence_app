@@ -703,14 +703,15 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
 
   Widget _buildMainContentView(context) {
     return new SafeArea(
-      child: new Container(
-        child: new ListView(
+      child: new SingleChildScrollView(
+        child: new Column(
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(left: 32, right: 32, top: 32),
               child: Text("Provide the following information to file a claim."),
             ),
             new Stepper(
+              physics: ClampingScrollPhysics(),
               steps: steps,
               type: StepperType.vertical,
               currentStep: _currentStep,
@@ -736,8 +737,6 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
               },
             ),
           ],
-          shrinkWrap: true,
-          reverse: false,
         ),
       ),
     );

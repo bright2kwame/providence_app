@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provident_insurance/api/api_service.dart';
 import 'package:provident_insurance/api/api_url.dart';
 import 'package:provident_insurance/api/parse_data.dart';
+import 'package:provident_insurance/constants/number_constant.dart';
 import 'package:provident_insurance/model/db_operations.dart';
 import 'package:provident_insurance/model/user_model.dart';
 import 'package:provident_insurance/onboarding/splash_screen.dart';
@@ -32,6 +33,9 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController _emailController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
   TextEditingController _passwordAgainController = new TextEditingController();
+  TextEditingController _phoneController = new TextEditingController();
+  TextEditingController _verificationCodeController =
+      new TextEditingController();
   FocusNode _firstNameFocus = new FocusNode();
   FocusNode _lastNameFocus = new FocusNode();
   FocusNode _emailFocus = new FocusNode();
@@ -57,6 +61,39 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         this.user = value;
       });
+    });
+  }
+
+  _startChangePhoneNumber(BuildContext context) {
+    String phoneNumber = this._phoneController.text.trim();
+    String code = this._verificationCodeController.text.trim();
+    if (phoneNumber.isEmpty) {
+      PopUpHelper(context, "Profile Update", "Provide a valid phone number")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (code.isEmpty) {
+      PopUpHelper(context, "Profile Update", "Provide verification code")
+          .showMessageDialog("OK");
+      return;
+    }
+    Map<String, String> data = new Map();
+    data.putIfAbsent("phone_number", () => this.user.phone);
+    data.putIfAbsent("password", () => this._password);
+    ProgressHUD.of(context)?.show();
+    ApiService.get(this.user.token)
+        .putData(ApiUrl().myProfile(), data)
+        .then((value) {
+      print(value);
+      Navigator.pop(context);
+      PopUpHelper(context, "Password Change", "Password changed successfully")
+          .showMessageDialog("OK");
+    }).onError((error, stackTrace) {
+      PopUpHelper(context, "Password Change", error.toString())
+          .showMessageDialog("OK");
+    }).whenComplete(() {
+      ProgressHUD.of(context)?.dismiss();
     });
   }
 
@@ -367,12 +404,21 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
-                child: Text("Enter phone and proceed to verify"),
+                padding: EdgeInsets.only(
+                    top: NumberConstant.bottomSheetContentPadding,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding),
+                child: Text(
+                  "Enter phone and proceed to verify",
+                  style: WidgetHelper.textStyle16LightGray,
+                ),
               ),
               Padding(
-                padding:
-                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
+                padding: EdgeInsets.only(
+                    top: 16,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding,
+                    bottom: 16),
                 child: TextFormField(
                   maxLines: 1,
                   textInputAction: TextInputAction.next,
@@ -382,39 +428,36 @@ class _ProfilePageState extends State<ProfilePage> {
                   onFieldSubmitted: (String value) {
                     _passwordFocus.unfocus();
                   },
-                  validator: (val) => Validator().validatePassword(val!),
-                  onSaved: (val) => this._password = val!,
-                  controller: this._passwordController,
+                  controller: this._phoneController,
                   obscureText: true,
                   decoration: AppInputDecorator.boxDecorate("Enter new number"),
                 ),
               ),
               Padding(
-                padding:
-                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
+                padding: EdgeInsets.only(
+                    top: 16,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding,
+                    bottom: 16),
                 child: TextFormField(
                   maxLines: 1,
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.text,
                   style: WidgetHelper.textStyle16,
                   textAlign: TextAlign.left,
-                  onFieldSubmitted: (String value) {
-                    _passwordAgainFocus.unfocus();
-                  },
-                  validator: (val) => Validator().validatePassword(val!),
-                  controller: this._passwordAgainController,
-                  obscureText: true,
+                  controller: this._verificationCodeController,
                   decoration:
                       AppInputDecorator.boxDecorate("Enter verification code"),
                 ),
               ),
               SafeArea(
-                  child: Padding(
-                padding: EdgeInsets.only(top: 64, left: 32, right: 32),
+                  child: Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.only(top: 32, left: 32, right: 32),
                 child: TextButton(
                   style: WidgetHelper.raisedButtonStyle,
                   onPressed: () {
-                    this._startPassword(buildContext);
+                    this._startChangePhoneNumber(buildContext);
                   },
                   child: Text('Update Phone Number'),
                 ),
@@ -433,12 +476,22 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
-                child: Text("Provide the information below to change password"),
+                padding: EdgeInsets.only(
+                    top: NumberConstant.bottomSheetContentPadding,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding),
+                child: Text(
+                  "Provide the information below to change password",
+                  style: WidgetHelper.textStyle16LightGray,
+                  textAlign: TextAlign.center,
+                ),
               ),
               Padding(
-                padding:
-                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
+                padding: EdgeInsets.only(
+                    top: 16,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding,
+                    bottom: 16),
                 child: TextFormField(
                   maxLines: 1,
                   textInputAction: TextInputAction.next,
@@ -456,8 +509,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Padding(
-                padding:
-                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
+                padding: EdgeInsets.only(
+                    top: 16,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding,
+                    bottom: 16),
                 child: TextFormField(
                   maxLines: 1,
                   textInputAction: TextInputAction.next,
@@ -473,8 +529,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   decoration: AppInputDecorator.boxDecorate("Repeat password"),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 64, left: 32, right: 32),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.only(
+                    top: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding,
+                    right: NumberConstant.bottomSheetContentPadding),
                 child: TextButton(
                   style: WidgetHelper.raisedButtonStyle,
                   onPressed: () {
@@ -497,14 +557,21 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
+                padding: EdgeInsets.only(
+                    top: NumberConstant.bottomSheetContentPadding,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding),
                 child: Text(
                   "Provide the information below to update profile",
                   textAlign: TextAlign.center,
+                  style: WidgetHelper.textStyle16LightGray,
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
+                padding: EdgeInsets.only(
+                    top: 32,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding),
                 child: TextFormField(
                   maxLines: 1,
                   textInputAction: TextInputAction.next,
@@ -521,7 +588,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 16, right: 32, left: 16),
+                padding: EdgeInsets.only(
+                    top: 16,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding),
                 child: TextFormField(
                   maxLines: 1,
                   textInputAction: TextInputAction.next,
@@ -538,8 +608,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Padding(
-                padding:
-                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
+                padding: EdgeInsets.only(
+                    top: 16,
+                    right: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding),
                 child: TextFormField(
                   maxLines: 1,
                   textInputAction: TextInputAction.next,
@@ -556,8 +628,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       AppInputDecorator.boxDecorate("Enter email address"),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 64, left: 32, right: 32),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.only(
+                    top: NumberConstant.bottomSheetContentPadding,
+                    left: NumberConstant.bottomSheetContentPadding,
+                    right: NumberConstant.bottomSheetContentPadding),
                 child: TextButton(
                   style: WidgetHelper.raisedButtonStyle,
                   onPressed: () {
@@ -613,6 +689,9 @@ class _ProfilePageState extends State<ProfilePage> {
       Map<String, String> data = new Map();
       data.putIfAbsent("avatar", () => image.name);
       this._startImageUpload(File(image.path), data);
+    } else {
+      PopUpHelper(context, "Image Upload", "Unable to upload image")
+          .showMessageDialog("OK");
     }
   }
 
@@ -622,6 +701,9 @@ class _ProfilePageState extends State<ProfilePage> {
       Map<String, String> data = new Map();
       data.putIfAbsent("avatar", () => image.name);
       this._startImageUpload(File(image.path), data);
+    } else {
+      PopUpHelper(context, "Image Upload", "Unable to upload image")
+          .showMessageDialog("OK");
     }
   }
 

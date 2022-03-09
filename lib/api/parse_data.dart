@@ -63,6 +63,13 @@ class ParseApiData {
     return vehicleThings;
   }
 
+  VehicleThings parseThing(var result) {
+    String id = result["slams_id"].toString();
+    String name = result["name"].toString();
+    var vehicleThings = VehicleThings(id: id, name: name);
+    return vehicleThings;
+  }
+
   Payment parsePayment(var result) {
     String debitAmount = result["debit_amt"].toString();
     String transactionType = result["transaction_type"].toString();

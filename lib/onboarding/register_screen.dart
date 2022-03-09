@@ -55,7 +55,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     ApiService()
         .postDataNoHeader(ApiUrl().completeSignUp(), data)
         .then((value) {
-      print(value);
       var result = value["results"];
       DBOperations().insertUser(ParseApiData().parseUser(result));
       Navigator.pushAndRemoveUntil<dynamic>(

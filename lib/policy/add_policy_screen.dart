@@ -52,6 +52,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       new TextEditingController();
   static TextEditingController _phoneNumberController =
       new TextEditingController();
+  static TextEditingController _agentNumberController =
+      new TextEditingController();
   static TextEditingController _emailAddressController =
       new TextEditingController();
 
@@ -88,8 +90,18 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         new Step(
             title: const Text('Vehicle Input'),
             isActive: _currentStep >= 4,
-            state: StepState.complete,
+            state: StepState.indexed,
             content: _vehicleInputUi()),
+        new Step(
+            title: const Text('Company Info'),
+            isActive: _currentStep >= 5,
+            state: StepState.indexed,
+            content: _companyInputUi()),
+        new Step(
+            title: const Text('Confirm'),
+            isActive: _currentStep >= 6,
+            state: StepState.complete,
+            content: _agentsInputUi()),
       ];
 
   String _selectedDateOfBirthDisplay = "Date of Birth";
@@ -196,6 +208,17 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     "VOTERS",
     "DRIVING_LICENSE"
   ];
+  var __idTypeBusiness = [
+    _defIDTypeType,
+    "CERTIFICATE OF INCORPORATION",
+    "CERTIFICATE OF COMMENCEMENT"
+  ];
+
+  var __idTypeBusinessKeys = [
+    _defIDTypeType,
+    "CERTIFICATE_OF_INCORPORATION",
+    "CERTIFICATE_OF_COMMENCEMENT"
+  ];
 
   static final String _defGenderType = "Select Gender";
   String _gender = _defGenderType;
@@ -203,6 +226,13 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     _defGenderType,
     "Male",
     "Female",
+  ];
+  static final String _defPolicyType = "Choose Policy Type";
+  String _policyType = _defPolicyType;
+  var _policyTypes = [
+    _defPolicyType,
+    "BUSINESS",
+    "PERSONAL",
   ];
   var __genderTypesKeys = [_defGenderType, "MALE", "FEMALE"];
 
@@ -220,6 +250,14 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     VehicleThings(name: _defVehicleBodyTye)
   ];
 
+  static final String _defOccupation = "Choose occupation";
+  String _occupation = _defOccupation;
+  List<VehicleThings> _occupations = [VehicleThings(name: _defOccupation)];
+
+  static final String _defIndustry = "Choose industry";
+  String _industry = _defIndustry;
+  List<VehicleThings> _industries = [VehicleThings(name: _defIndustry)];
+
   /*vehicle section*/
   static TextEditingController _numberOfSeatsController =
       new TextEditingController();
@@ -228,9 +266,20 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   static TextEditingController _idNumberController =
       new TextEditingController();
 
+  /*company section*/
+  static TextEditingController _companyNameController =
+      new TextEditingController();
+  static TextEditingController _contactMobileController =
+      new TextEditingController();
+  static TextEditingController _contactNameController =
+      new TextEditingController();
+  static TextEditingController _contactPositionController =
+      new TextEditingController();
+
   var disclaimer =
       "Kindly note that the premium displayed after the computation is dependent on the values you provided and might be amended or rejected should any discrepancy be noticed at the discretion of Provident Insurance Company Limited. Please tick the box below to confirm your acceptance of this disclaimer.";
   var discliamerTerms = false;
+  var isAgentSubmission = false;
   _showMessage(String message) {
     Fluttertoast.showToast(
         msg: message,
@@ -246,8 +295,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(2000),
-      firstDate: DateTime(2000),
+      initialDate: DateTime(1990),
+      firstDate: DateTime(1900),
       lastDate: DateTime(2025),
     );
     if (picked != null) {
@@ -263,6 +312,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         child: new ListView(
       shrinkWrap: true,
       reverse: false,
+      physics: const NeverScrollableScrollPhysics(),
       children: <Widget>[
         new Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -276,6 +326,24 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
+                        Container(
+                          child: DropdownButton<String>(
+                            value: _policyType,
+                            isExpanded: true,
+                            hint: Text('Choose Policy Type'),
+                            items: this._policyTypes.map((value) {
+                              return DropdownMenuItem(
+                                value: value,
+                                child: new Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                this._policyType = value.toString();
+                              });
+                            },
+                          ),
+                        ),
                         new Padding(
                           padding:
                               EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
@@ -375,6 +443,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     return Container(
         child: new ListView(
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       reverse: false,
       children: <Widget>[
         new Column(
@@ -398,24 +467,43 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                 },
               ),
             ),
-            Container(
-              child: DropdownButton<String>(
-                value: _idType,
-                isExpanded: true,
-                hint: Text('Choose ID Type'),
-                items: this._idTypes.map((value) {
-                  return DropdownMenuItem(
-                    value: value,
-                    child: new Text(value),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    this._idType = value.toString();
-                  });
-                },
-              ),
-            ),
+            this._policyType == "PERSONAL"
+                ? Container(
+                    child: DropdownButton<String>(
+                      value: _idType,
+                      isExpanded: true,
+                      hint: Text('Choose ID Type'),
+                      items: this._idTypes.map((value) {
+                        return DropdownMenuItem(
+                          value: value,
+                          child: new Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          this._idType = value.toString();
+                        });
+                      },
+                    ),
+                  )
+                : Container(
+                    child: DropdownButton<String>(
+                      value: _idType,
+                      isExpanded: true,
+                      hint: Text('Choose ID Type'),
+                      items: this.__idTypeBusiness.map((value) {
+                        return DropdownMenuItem(
+                          value: value,
+                          child: new Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          this._idType = value.toString();
+                        });
+                      },
+                    ),
+                  ),
             new Padding(
               padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
               child: new TextFormField(
@@ -436,6 +524,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     return Container(
         child: new ListView(
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       reverse: false,
       children: <Widget>[
         Container(
@@ -494,6 +583,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         child: new ListView(
       shrinkWrap: true,
       reverse: false,
+      physics: const NeverScrollableScrollPhysics(),
       children: <Widget>[
         Container(
           child: DropdownButton<String>(
@@ -589,9 +679,11 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     ));
   }
 
+  //MARK: vehicle input
   Widget _vehicleInputUi() {
     return Container(
         child: new ListView(
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       reverse: false,
       children: <Widget>[
@@ -629,6 +721,123 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     ));
   }
 
+  //MARK: comapany ui section
+  Widget _companyInputUi() {
+    return Container(
+        child: new ListView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      reverse: false,
+      children: <Widget>[
+        Container(
+          child: DropdownButton<String>(
+            value: _industry,
+            isExpanded: true,
+            hint: Text('Choose Industry'),
+            items: this._industries.map((value) {
+              return DropdownMenuItem(
+                value: value.name,
+                child: new Text(value.name),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                this._industry = value.toString();
+              });
+            },
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _companyNameController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter company name"),
+            keyboardType: TextInputType.emailAddress,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _contactNameController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter contact name"),
+            keyboardType: TextInputType.emailAddress,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _contactMobileController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter contact mobile"),
+            keyboardType: TextInputType.emailAddress,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _contactPositionController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter contact position"),
+            keyboardType: TextInputType.emailAddress,
+          ),
+        ),
+        Container(
+          child: DropdownButton<String>(
+            value: _occupation,
+            isExpanded: true,
+            hint: Text('Choose Contact Occupation'),
+            items: this._occupations.map((value) {
+              return DropdownMenuItem(
+                value: value.name,
+                child: new Text(value.name),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                this._occupation = value.toString();
+              });
+            },
+          ),
+        ),
+      ],
+    ));
+  }
+
+//MARK: agents ui section
+  Widget _agentsInputUi() {
+    return Container(
+        child: new ListView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      reverse: false,
+      children: <Widget>[
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0),
+          child: CheckboxListTile(
+            title: Text("Submit policy as an agent"),
+            value: isAgentSubmission,
+            onChanged: (newValue) {
+              setState(() {
+                isAgentSubmission = newValue!;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+        new Padding(
+            padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16.0),
+            child: new TextFormField(
+              autofocus: false,
+              controller: _agentNumberController,
+              keyboardType: TextInputType.text,
+              decoration: AppInputDecorator.boxDecorate("Enter Agent number"),
+            )),
+      ],
+    ));
+  }
+
   User user = new User();
 
   @override
@@ -653,6 +862,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         this._getVehicleMakes(ApiUrl().getVehicleMakes());
         this._getVehicleTypes(ApiUrl().getVehicleTypes());
         this._getVehicleBodyTypes(ApiUrl().getVehicleBodyTpe());
+        this._getOccupation(ApiUrl().getOccupationsUrl());
+        this._getIndustry(ApiUrl().getIndustryUrl());
       }
     });
   }
@@ -720,127 +931,203 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         });
   }
 
+  _getIndustry(String url) {
+    ApiService.getNoAuth()
+        .getDataNoAuth(url)
+        .then((value) {
+          print(value.toString());
+          List<VehicleThings> data = [];
+          value["results"].forEach((item) {
+            data.add(ParseApiData().parseThing(item));
+          });
+          setState(() {
+            this._industries.addAll(data);
+          });
+          if (value["next"] != null) {
+            _getIndustry(value["next"].toString());
+          }
+        })
+        .whenComplete(() {})
+        .onError((error, stackTrace) {
+          print(error);
+        });
+  }
+
+  _getOccupation(String url) {
+    ApiService.getNoAuth()
+        .getDataNoAuth(url)
+        .then((value) {
+          List<VehicleThings> data = [];
+          value["results"].forEach((item) {
+            data.add(ParseApiData().parseThing(item));
+          });
+          setState(() {
+            this._occupations.addAll(data);
+          });
+          if (value["next"] != null) {
+            _getOccupation(value["next"].toString());
+          }
+        })
+        .whenComplete(() {})
+        .onError((error, stackTrace) {
+          print(error);
+        });
+  }
+
   Widget _buildMainContentView(context) {
     return new SafeArea(
-      child: new Container(
-        child: new ListView(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(left: 32, right: 32, top: 32),
-              child: Text(
-                  "Provide the following information to request a new policy."),
-            ),
-            new Stepper(
-              steps: steps,
-              type: StepperType.vertical,
-              currentStep: _currentStep,
-              onStepContinue: () {
-                print(_currentStep);
-                setState(() {
-                  if (_currentStep == 0) {
-                    var firstName =
-                        _firstNameController.value.text.toString().trim();
-                    var lastName =
-                        _lastNameController.value.text.toString().trim();
-                    var middleName =
-                        _middleNameController.value.text.toString().trim();
-                    var number =
-                        _phoneNumberController.value.text.toString().trim();
-                    var email =
-                        _emailAddressController.value.text.toString().trim();
-                    if (!Validator().isValidName(firstName) ||
-                        !Validator().isValidName(lastName) ||
-                        !Validator().isValidName(middleName)) {
-                      this._showMessage("Enter a valid name");
-                    } else if (!Validator().isValidPhoneNumber(number)) {
-                      this._showMessage("Enter a valid number");
-                    } else if (!Validator().isValidEmail(email)) {
-                      this._showMessage("Enter a valid email address");
-                    } else if (!Validator()
-                        .isValidInput(_selectedDateOfBirthDisplay)) {
-                      this._showMessage("Select date oof birth");
-                    } else {
-                      //MARK: continue to next
-                      this.increaseStepper();
-                    }
-                  } else if (_currentStep == 1) {
-                    var selected = this._idTypes.contains(this._idType);
-                    var selectedGender =
-                        this._genderTypes.contains(this._gender);
-                    if (_idType == _defIDTypeType || !selected) {
-                      this._showMessage("Select ID type");
-                    } else if (_gender == _defGenderType || !selectedGender) {
-                      this._showMessage("Select gender");
-                    } else {
-                      //MARK: continue to next
-                      this.increaseStepper();
-                    }
-                  } else if (_currentStep == 2) {
-                    var selected =
-                        this._insuranceTypes.contains(this._insuranceType);
-                    var selectedperid =
-                        this._insurancePeriods.contains(this._insurancePeriod);
-                    if (_insuranceType == _defInsuranceType || !selected) {
-                      this._showMessage("Select insurance type");
-                    } else if (_insurancePeriod == _defInsurancePeriod ||
-                        !selectedperid) {
-                      this._showMessage("Select insurance period");
-                    } else {
-                      //MARK: continue to next
-                      this.increaseStepper();
-                    }
-                  } else if (_currentStep == 3) {
-                    if (_vehicleType == _defVehicleType) {
-                      this._showMessage("Select vehicle type");
-                    } else if (_vehicleMake == _defVehicleMake) {
-                      this._showMessage("Select vehicle make");
-                    } else if (_vehicleBodyType == _defVehicleBodyTye) {
-                      this._showMessage("Select vehicle body");
-                    } else if (_motivePower == _defMotorPoer) {
-                      this._showMessage("Select motive power");
-                    } else {
-                      //MARK: continue to next
-                      this.increaseStepper();
-                    }
-                  } else if (_currentStep == 4) {
-                    var numberOfSeats =
-                        _numberOfSeatsController.text.toString().trim();
-                    var maufacturingYear =
-                        _manufacturingYearController.text.toString().trim();
-                    var color = _vehicleColorController.text.toString().trim();
-                    if (!Validator().isValidInput(numberOfSeats)) {
-                      this._showMessage("Enter vehicle number of seats");
-                    } else if (!Validator().isValidInput(maufacturingYear)) {
-                      this._showMessage("Enter year of manufacturing");
-                    } else if (!Validator().isValidInput(color)) {
-                      this._showMessage("Provide color");
-                    } else {
-                      //MARK: continue to next
-                      this._checkAllRecordsAndSubmit(context);
-                    }
-                  }
-                });
-              },
-              onStepCancel: () {
-                setState(() {
-                  if (_currentStep > 0) {
-                    _currentStep = _currentStep - 1;
+      child: SingleChildScrollView(
+          child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(left: 32, right: 32, top: 32),
+            child: Text(
+                "Provide the following information to request a new policy."),
+          ),
+          new Stepper(
+            physics: ClampingScrollPhysics(),
+            steps: steps,
+            type: StepperType.vertical,
+            currentStep: _currentStep,
+            onStepContinue: () {
+              print(_currentStep);
+              setState(() {
+                if (_currentStep == 0) {
+                  var firstName =
+                      _firstNameController.value.text.toString().trim();
+                  var lastName =
+                      _lastNameController.value.text.toString().trim();
+                  var middleName =
+                      _middleNameController.value.text.toString().trim();
+                  var number =
+                      _phoneNumberController.value.text.toString().trim();
+
+                  var email =
+                      _emailAddressController.value.text.toString().trim();
+
+                  if (!Validator().isValidName(firstName) ||
+                      !Validator().isValidName(lastName) ||
+                      !Validator().isValidName(middleName)) {
+                    this._showMessage("Enter a valid name");
+                  } else if (_policyType.isEmpty) {
+                    this._showMessage("Choose policy type");
+                  } else if (!Validator().isValidPhoneNumber(number)) {
+                    this._showMessage("Enter a valid number");
+                  } else if (!Validator().isValidEmail(email)) {
+                    this._showMessage("Enter a valid email address");
+                  } else if (!Validator()
+                      .isValidInput(_selectedDateOfBirthDisplay)) {
+                    this._showMessage("Select date oof birth");
                   } else {
-                    _currentStep = 0;
+                    //MARK: continue to next
+                    this.increaseStepper();
                   }
-                });
-              },
-              onStepTapped: (step) {
-                setState(() {
-                  _currentStep = step;
-                });
-              },
-            ),
-          ],
-          shrinkWrap: true,
-          reverse: false,
-        ),
-      ),
+                } else if (_currentStep == 1) {
+                  var selected = this._idTypes.contains(this._idType);
+                  var selectedGender = this._genderTypes.contains(this._gender);
+                  if (_policyType == "PERSONAL" &&
+                      (_idType == _defIDTypeType || !selected)) {
+                    this._showMessage("Select ID type");
+                  } else if (_policyType == "BUSNESS" &&
+                      (_idType == _defIDTypeType || !selected)) {
+                    this._showMessage("Select gender");
+                  } else if (_gender == _defGenderType || !selectedGender) {
+                    this._showMessage("Select gender");
+                  } else {
+                    //MARK: continue to next
+                    this.increaseStepper();
+                  }
+                } else if (_currentStep == 2) {
+                  var selected =
+                      this._insuranceTypes.contains(this._insuranceType);
+                  var selectedperid =
+                      this._insurancePeriods.contains(this._insurancePeriod);
+                  if (_insuranceType == _defInsuranceType || !selected) {
+                    this._showMessage("Select insurance type");
+                  } else if (_insurancePeriod == _defInsurancePeriod ||
+                      !selectedperid) {
+                    this._showMessage("Select insurance period");
+                  } else {
+                    //MARK: continue to next
+                    this.increaseStepper();
+                  }
+                } else if (_currentStep == 3) {
+                  if (_vehicleType == _defVehicleType) {
+                    this._showMessage("Select vehicle type");
+                  } else if (_vehicleMake == _defVehicleMake) {
+                    this._showMessage("Select vehicle make");
+                  } else if (_vehicleBodyType == _defVehicleBodyTye) {
+                    this._showMessage("Select vehicle body");
+                  } else if (_motivePower == _defMotorPoer) {
+                    this._showMessage("Select motive power");
+                  } else {
+                    //MARK: continue to next
+                    this.increaseStepper();
+                  }
+                } else if (_currentStep == 4) {
+                  var numberOfSeats =
+                      _numberOfSeatsController.text.toString().trim();
+                  var maufacturingYear =
+                      _manufacturingYearController.text.toString().trim();
+                  var color = _vehicleColorController.text.toString().trim();
+                  if (!Validator().isValidInput(numberOfSeats)) {
+                    this._showMessage("Enter vehicle number of seats");
+                  } else if (!Validator().isValidInput(maufacturingYear)) {
+                    this._showMessage("Enter year of manufacturing");
+                  } else if (!Validator().isValidInput(color)) {
+                    this._showMessage("Provide color");
+                  } else {
+                    //MARK: continue to next
+                    this.increaseStepper();
+                  }
+                } else if (_currentStep == 5) {
+                  var companyName =
+                      _companyNameController.text.toString().trim();
+                  var maufacturingYear =
+                      _manufacturingYearController.text.toString().trim();
+                  var color = _vehicleColorController.text.toString().trim();
+                  var policyIsBusiness = _policyType == "BUSINESS";
+                  if (policyIsBusiness &&
+                      !Validator().isValidInput(companyName)) {
+                    this._showMessage("Enter vehicle number of seats");
+                  } else if (!Validator().isValidInput(maufacturingYear)) {
+                    this._showMessage("Enter year of manufacturing");
+                  } else if (!Validator().isValidInput(color)) {
+                    this._showMessage("Provide color");
+                  } else {
+                    //MARK: continue to next
+                    this.increaseStepper();
+                  }
+                } else if (_currentStep == 6) {
+                  var agentNumber =
+                      _agentNumberController.text.toString().trim();
+                  if (isAgentSubmission &&
+                      !Validator().isValidInput(agentNumber)) {
+                    this._showMessage("Enter agent number and proceed");
+                  } else {
+                    //MARK: continue to next
+                    this._checkAllRecordsAndSubmit(context);
+                  }
+                }
+              });
+            },
+            onStepCancel: () {
+              setState(() {
+                if (_currentStep > 0) {
+                  _currentStep = _currentStep - 1;
+                } else {
+                  _currentStep = 0;
+                }
+              });
+            },
+            onStepTapped: (step) {
+              setState(() {
+                _currentStep = step;
+              });
+            },
+          ),
+        ],
+      )),
     );
   }
 
@@ -852,17 +1139,22 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   }
 
   void _checkAllRecordsAndSubmit(BuildContext buildContext) {
-    print("FINAL");
     String firstName = _firstNameController.text.trim();
     String lastName = _lastNameController.text.trim();
     String middleName = _middleNameController.text.trim();
     String phoneNumber = _phoneNumberController.text.trim();
+    String agentNumber = _agentNumberController.text.trim();
     String email = _emailAddressController.text.trim();
     String color = _vehicleColorController.text.trim();
     String year = _manufacturingYearController.text.trim();
     String sum = _sumInsuredController.text.trim();
     String seatNo = _numberOfSeatsController.text.trim();
     String idNumber = _idNumberController.text.trim();
+
+    String companyName = _companyNameController.text.trim();
+    String contactName = _contactNameController.text.trim();
+    String contactMobile = _contactMobileController.text.trim();
+    String contactPosition = _contactPositionController.text.trim();
 
     if (firstName.isEmpty || lastName.isEmpty || middleName.isEmpty) {
       PopUpHelper(context, "Buy Policy", "Provide name information")
@@ -900,6 +1192,22 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       return;
     }
 
+    if (isAgentSubmission && agentNumber.isEmpty) {
+      PopUpHelper(context, "Buy Policy", "Enter agent number and proceed")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (this._policyType == "BUSINESS" &&
+        (companyName.isEmpty ||
+            contactName.isEmpty ||
+            contactMobile.isEmpty ||
+            contactPosition.isEmpty)) {
+      PopUpHelper(context, "Buy Policy", "Provide company info")
+          .showMessageDialog("OK");
+      return;
+    }
+
     VehicleThings vehicleThingsMake = this
         ._vehicleMakes
         .firstWhere((element) => element.name == this._vehicleMake);
@@ -914,6 +1222,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
 
     Map<String, String> data = new Map();
     data.putIfAbsent("phone_number", () => phoneNumber);
+    data.putIfAbsent("agent_number", () => agentNumber);
     data.putIfAbsent("email_address", () => email);
     data.putIfAbsent("middle_name", () => middleName);
     data.putIfAbsent("first_name", () => firstName);
@@ -946,9 +1255,34 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     data.putIfAbsent("number_of_seats", () => seatNo);
     data.putIfAbsent("sex",
         () => this.__genderTypesKeys[this._genderTypes.indexOf(this._gender)]);
-    data.putIfAbsent("id_type",
-        () => this.__idTypeKeys[this._idTypes.indexOf(this._idType)]);
+    data.putIfAbsent(
+        "id_type",
+        () => this._policyType == "PERSONAL"
+            ? this.__idTypeKeys[this._idTypes.indexOf(this._idType)]
+            : this.__idTypeBusinessKeys[
+                this.__idTypeBusiness.indexOf(this._idType)]);
     data.putIfAbsent("id_number", () => idNumber);
+
+    if (this._policyType == "BUSINESS") {
+      //MARK: company
+      data.putIfAbsent("company_name", () => companyName);
+      data.putIfAbsent("chief_contact_name", () => contactName);
+      data.putIfAbsent("chief_contact_mobile", () => contactMobile);
+      data.putIfAbsent("chief_contact_position", () => contactPosition);
+
+      VehicleThings vehicleThingsOccupaion = this
+          ._occupations
+          .firstWhere((element) => element.name == this._occupation);
+
+      data.putIfAbsent(
+          "chief_contact_occupation", () => vehicleThingsOccupaion.id);
+
+      VehicleThings vehicleThingsIndustry = this
+          ._industries
+          .firstWhere((element) => element.name == this._industry);
+
+      data.putIfAbsent("industry", () => vehicleThingsIndustry.id);
+    }
 
     print(data);
     final progress = ProgressHUD.of(buildContext);
@@ -960,7 +1294,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       String amount = value["results"]["premium"];
       String paymentLink = value["results"]["payment_url"];
       PopUpHelper(context, "Policy",
-              "Successfully placed purchase policy request of $amount ")
+              "Successfully placed purchase policy request of $amount")
           .showMessageDialogWith("PROCEED TO PAY", () {
         this._openPaymentPage(paymentLink);
       });

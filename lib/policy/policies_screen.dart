@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:provident_insurance/api/api_service.dart';
 import 'package:provident_insurance/api/api_url.dart';
 import 'package:provident_insurance/api/parse_data.dart';
@@ -29,6 +30,7 @@ class _PolicieScreenState extends State<PolicieScreen> {
   FocusNode _vehicleNumberFocus = new FocusNode();
   String _vehicleNumber = "";
   Policy _policy = new Policy();
+  late BuildContext buildContext;
 
   @override
   void initState() {
@@ -37,22 +39,24 @@ class _PolicieScreenState extends State<PolicieScreen> {
   }
 
   void _getPolicies() {
+    final progress = ProgressHUD.of(buildContext);
+    progress?.show();
     ApiService.get(this.user.token)
         .getData(ApiUrl().managePolicy())
         .then((value) {
-          this.policies = [];
-          value["results"].forEach((item) {
-            this.policies.add(ParseApiData().parsePolicy(item));
-          });
-          if (this.policies.isNotEmpty) {
-            this._policy = this.policies[0];
-          }
-          setState(() {});
-        })
-        .whenComplete(() {})
-        .onError((error, stackTrace) {
-          print(error);
-        });
+      this.policies = [];
+      value["results"].forEach((item) {
+        this.policies.add(ParseApiData().parsePolicy(item));
+      });
+      if (this.policies.isNotEmpty) {
+        this._policy = this.policies[0];
+      }
+      setState(() {});
+    }).whenComplete(() {
+      progress?.dismiss();
+    }).onError((error, stackTrace) {
+      print(error);
+    });
   }
 
 //MARK: update local db
@@ -90,13 +94,17 @@ class _PolicieScreenState extends State<PolicieScreen> {
           ),
         ],
       ),
-      body: this.policies.isEmpty
-          ? _addNewPolicy()
-          : _buildMainContentView(context),
+      body: ProgressHUD(
+          child: Builder(
+        builder: (buildContext) => this.policies.isEmpty
+            ? _addNewPolicy(buildContext)
+            : _buildMainContentView(buildContext),
+      )),
     );
   }
 
-  Widget _addNewPolicy() {
+  Widget _addNewPolicy(BuildContext context) {
+    this.buildContext = context;
     return SafeArea(
         child: Center(
       child: new Column(
@@ -165,7 +173,8 @@ class _PolicieScreenState extends State<PolicieScreen> {
         });
   }
 
-  Widget _buildMainContentView(context) {
+  Widget _buildMainContentView(BuildContext context) {
+    this.buildContext = context;
     return new SafeArea(
         child: new SingleChildScrollView(
       child: Column(

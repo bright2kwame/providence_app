@@ -128,4 +128,14 @@ class ApiUrl {
   String getQuoteUrl() {
     return getBaseUrl() + "users/get_quote/";
   }
+
+  //MARK: get occupations
+  String getOccupationsUrl() {
+    return getBaseUrl() + "users/get_occupation/";
+  }
+
+  //MARK: get industries
+  String getIndustryUrl() {
+    return getBaseUrl() + "users/get_industry/";
+  }
 }
