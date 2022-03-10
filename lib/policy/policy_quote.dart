@@ -717,8 +717,8 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
 
   Widget _buildMainContentView(context) {
     return new SafeArea(
-      child: new Container(
-        child: new ListView(
+      child: new SingleChildScrollView(
+        child: new Column(
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(left: 32, right: 32, top: 32),
@@ -726,6 +726,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                   Text("Provide the following information to request a quote."),
             ),
             new Stepper(
+              physics: ClampingScrollPhysics(),
               steps: steps,
               type: StepperType.vertical,
               currentStep: _currentStep,
@@ -832,8 +833,6 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
               },
             ),
           ],
-          shrinkWrap: true,
-          reverse: false,
         ),
       ),
     );

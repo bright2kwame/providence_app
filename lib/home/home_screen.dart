@@ -52,13 +52,13 @@ class _HomePageState extends State<HomePage> {
   //MARK: navigate to adding new policy
   void _navigateToNewPolicy() {
     Navigator.of(context).push(new MaterialPageRoute(
-        builder: (BuildContext context) => new AddPolicyScreen()));
+        builder: (BuildContext context) => new AddPolicyScreen(false)));
   }
 
   //MARK: navigate to quote on policy
   void _navigateToPolicyQuote() {
     Navigator.of(context).push(new MaterialPageRoute(
-        builder: (BuildContext context) => new PolicyQuoteScreen()));
+        builder: (BuildContext context) => new AddPolicyScreen(true)));
   }
 
   //MARK: navigate to file claim

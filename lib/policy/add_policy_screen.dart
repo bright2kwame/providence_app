@@ -17,6 +17,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AddPolicyScreen extends StatefulWidget {
+  final bool isQuote;
+  AddPolicyScreen(this.isQuote);
   @override
   State<StatefulWidget> createState() {
     return _AddPolicyScreenState();
@@ -30,7 +32,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "NEW POLICY",
+          widget.isQuote ? "GET QUOTE" : "NEW POLICY",
           style: WidgetHelper.textStyle16AcensWhite,
         ),
         backgroundColor: secondaryColor,
@@ -981,8 +983,9 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(left: 32, right: 32, top: 32),
-            child: Text(
-                "Provide the following information to request a new policy."),
+            child: Text(widget.isQuote
+                ? "Provide the following information to request a quote."
+                : "Provide the following information to request a new policy."),
           ),
           new Stepper(
             physics: ClampingScrollPhysics(),
@@ -1291,6 +1294,15 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     ApiService.get(this.user.token)
         .postData(ApiUrl().buyPolicy(), data)
         .then((value) {
+      if (widget.isQuote) {
+        String amount = value["results"]["premium"];
+        String quoteId = value["results"]["quote_id"];
+        PopUpHelper(context, "Policy Quote", "Policy quote is " + amount)
+            .showMessageDialogWith("EMAIL QUOTE", () {
+          this._emailQuote(buildContext, quoteId);
+        });
+        return;
+      }
       String amount = value["results"]["premium"];
       String paymentLink = value["results"]["payment_url"];
       PopUpHelper(context, "Policy",
@@ -1298,6 +1310,26 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
           .showMessageDialogWith("PROCEED TO PAY", () {
         this._openPaymentPage(paymentLink);
       });
+    }).whenComplete(() {
+      progress?.dismiss();
+    }).onError((error, stackTrace) {
+      print(error);
+      PopUpHelper(context, "Policy", "Failed to buy policy")
+          .showMessageDialog("OK");
+    });
+  }
+
+  //MARK: take user to terms page
+  void _emailQuote(BuildContext buildContext, String id) async {
+    final progress = ProgressHUD.of(buildContext);
+    progress?.show();
+    Map<String, String> data = new Map();
+    data.putIfAbsent("quote_id", () => id);
+    ApiService.get(this.user.token)
+        .postData(ApiUrl().getEmailPolicyQuote(), data)
+        .then((value) {
+      PopUpHelper(context, "Policy Quote", "Email sent successfully")
+          .showMessageDialog("OK");
     }).whenComplete(() {
       progress?.dismiss();
     }).onError((error, stackTrace) {
