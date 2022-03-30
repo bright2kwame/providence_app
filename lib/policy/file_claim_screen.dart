@@ -1,12 +1,22 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provident_insurance/api/api_service.dart';
+import 'package:provident_insurance/api/api_url.dart';
+import 'package:provident_insurance/api/parse_data.dart';
+import 'package:provident_insurance/constants/app_enums.dart';
 import 'package:provident_insurance/constants/color.dart';
+import 'package:provident_insurance/model/db_operations.dart';
+import 'package:provident_insurance/model/user_model.dart';
+import 'package:provident_insurance/model/vehicle_things_model.dart';
+import 'package:provident_insurance/util/pop_up_helper.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
 
 class FileClaimScreen extends StatefulWidget {
   @override
@@ -30,130 +40,94 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     );
   }
 
-/*personal*/
-  static TextEditingController _fullNameController =
-      new TextEditingController();
-  static TextEditingController _phoneNumberController =
-      new TextEditingController();
-  static TextEditingController _addressController = new TextEditingController();
-  static TextEditingController _occupationController =
-      new TextEditingController();
-  static TextEditingController _branchController = new TextEditingController();
-  static TextEditingController _policyNumberController =
-      new TextEditingController();
-
-  static final String _defInsurancePeriodDisplay = "Insurance Period";
-  String _selectedInsuranceDatePeriod = _defInsurancePeriodDisplay;
+  File? licenseFrontFile;
+  File? licenseBackFile;
+  File? damagedVehicleFile;
+  File? otherDamagedVehicleFile;
+  File? otherPropertyFile;
+  File? estimateFile;
+  File? claimFile;
 
   /*vehicle section*/
   static TextEditingController _vehicleNumberController =
       new TextEditingController();
-  static TextEditingController _yearOfMakeController =
+  static TextEditingController _nameOfDriverController =
       new TextEditingController();
-  static TextEditingController _nameOfOwnerController =
+  static TextEditingController _addressOfDriverController =
       new TextEditingController();
-  static TextEditingController _addressOfOwnerController =
+  static TextEditingController _phoneOfDriverController =
       new TextEditingController();
-  static TextEditingController _purposeOfUseController =
+  static TextEditingController _passengerDetailsController =
       new TextEditingController();
-  static TextEditingController _noOfTrailersController =
+  static TextEditingController _otherDriversInsuranceCompanyController =
       new TextEditingController();
-  bool _vehicleCarryingGoods = false;
-  bool _vehicleSideCarAttached = false;
-  static TextEditingController _chasisNumberController =
+  static TextEditingController _otherPartiesDetailController =
+      new TextEditingController();
+  static TextEditingController _injuredPersonDetailController =
+      new TextEditingController();
+  static TextEditingController _damageCausedToOtherDetailController =
+      new TextEditingController();
+  static TextEditingController _policeStationDetailController =
+      new TextEditingController();
+  static TextEditingController _descriptionOfAccidentController =
+      new TextEditingController();
+  static TextEditingController _addressOfDamagedVehicleController =
       new TextEditingController();
 
 //damage section
   static TextEditingController _damageController = new TextEditingController();
-  static final String _defInsuranceType = "Select Insurance Product";
-  String _insuranceType = _defInsuranceType;
-  var _insuranceTypes = [
-    _defInsuranceType,
-    "Motor Accident",
-    "Personal Accident",
-    "Fire and Burglary",
-    "Fire Allied Perils",
-    "Contractors All Risk",
-    "Cash In Transit",
-    "Assets All Risk",
-    "Public Liability",
-    "Bankers Indemity",
-    "Pant and Machinery",
-    "Professional Indemity",
-    "Workmen Compensation"
-  ];
-  bool _vehicleWithRepairer = false;
   static TextEditingController _placeOfAccidentController =
-      new TextEditingController();
-  static TextEditingController _descriptionOfAccidentController =
-      new TextEditingController();
-  static TextEditingController _repairerNameController =
-      new TextEditingController();
-  static TextEditingController _repairerShopNameController =
-      new TextEditingController();
-  static TextEditingController _repairerPhoneNumberController =
       new TextEditingController();
 
   static final String _defAccidentDateDisplay = "Accident Date";
   String _selectedAccidentDateDisplay = _defAccidentDateDisplay;
 
-  static final String _defVehicleMake = "Select Vehicle Make";
-  String _vehicleMake = _defVehicleMake;
-  var _vehicleMakes = [_defVehicleMake, "Vitz", "C300", "C500"];
+  static final String _defAccidentTimeDisplay = "Time of Accident";
+  String _selectedAccidentTimeDisplay = _defAccidentTimeDisplay;
 
   static int _currentStep = 0;
   static var _focusNode = new FocusNode();
 
   List<Step> get steps => <Step>[
         new Step(
-            title: const Text('Personal Info'),
+            title: const Text('Accident Detail'),
             isActive: _currentStep >= 0,
             state: StepState.indexed,
             content: _personalUi()),
         new Step(
-            title: const Text('Vehicle Info 1'),
+            title: const Text('Actions'),
             isActive: _currentStep >= 1,
             state: StepState.indexed,
-            content: _vehicleUi()),
+            content: _checkActionsUi()),
         new Step(
-            title: const Text('Vehicle Info 2'),
+            title: const Text('Drivers Info'),
             isActive: _currentStep >= 2,
             state: StepState.indexed,
-            content: _vehicleTwoUi()),
-        new Step(
-            title: const Text('Damage Info 1'),
-            isActive: _currentStep >= 3,
-            state: StepState.indexed,
-            content: _damageUi()),
-        new Step(
-            title: const Text('Damage Info 2'),
-            isActive: _currentStep >= 4,
-            state: StepState.indexed,
-            content: _damageTwoUi()),
-        new Step(
-            title: const Text('Damage Info 3'),
-            isActive: _currentStep >= 5,
-            state: StepState.indexed,
-            content: _damageThreeUi()),
+            content: _driverInfoUi()),
         new Step(
             title: const Text('Documents'),
-            isActive: _currentStep >= 6,
+            isActive: _currentStep >= 3,
             state: StepState.indexed,
             content: _documentUi()),
         new Step(
             title: const Text('Confirm'),
-            isActive: _currentStep >= 7,
+            isActive: _currentStep >= 4,
             state: StepState.complete,
             content: _confirmUi()),
       ];
 
-  bool _ownDamageReport = false;
-  bool _isInjuryReport = false;
-  bool _isDeathReport = false;
-
   var disclaimer =
       "Kindly note that the premium displayed after the computation is dependent on the values you provided and might be amended or rejected should any discrepancy be noticed at the discretion of Provident Insurance Company Limited. Please tick the box below to confirm your acceptance of this disclaimer.";
   var discliamerTerms = false;
+  bool _reportedToPolice = false;
+  bool _ownerOnBoard = false;
+  bool _passengerOnBoard = false;
+  bool _otherInvolvedInAccident = false;
+  bool _damagedToOtherProperties = false;
+  bool _othersInjured = false;
+  bool _otherDriverDiscloseInsurance = false;
+  bool _cliamAgainstYou = false;
+
   void _showMessage(String message) {
     Fluttertoast.showToast(
         msg: message,
@@ -165,25 +139,8 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
         fontSize: 16.0);
   }
 
-  //MARK: show date range picker
-  void _selectDateRange() async {
-    final DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedInsuranceDatePeriod =
-            DateFormat('yyyy-MM-dd').format(picked.start) +
-                " - " +
-                DateFormat('yyyy-MM-dd').format(picked.end);
-      });
-    }
-  }
-
 //MARK: show date picker
-  void _selectDate(bool isAccidentDate) async {
+  void _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime(2000),
@@ -192,10 +149,21 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     );
     if (picked != null) {
       setState(() {
-        if (isAccidentDate) {
-          this._selectedAccidentDateDisplay =
-              DateFormat('yyyy-MM-dd').format(picked);
-        }
+        this._selectedAccidentDateDisplay =
+            DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
+
+  //MARK: show time picker
+  void _selectAccidentTimeDate() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        this._selectedAccidentTimeDisplay = "${picked.hour}:${picked.minute}";
       });
     }
   }
@@ -219,64 +187,8 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        new Padding(
-                          padding:
-                              EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-                          child: new TextFormField(
-                            controller: _fullNameController,
-                            autofocus: false,
-                            decoration: AppInputDecorator.boxDecorate(
-                                "Enter full name"),
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.only(
-                                left: 0.0, right: 0.0, top: 16.0),
-                            child: new TextFormField(
-                              autofocus: false,
-                              controller: _occupationController,
-                              decoration: AppInputDecorator.boxDecorate(
-                                  "Enter occupation"),
-                            )),
-                        new Padding(
-                            padding: EdgeInsets.only(
-                                left: 0.0, right: 0.0, top: 16.0),
-                            child: new TextFormField(
-                              autofocus: false,
-                              controller: _branchController,
-                              decoration: AppInputDecorator.boxDecorate(
-                                  "Enter branch name"),
-                            )),
-                        new Padding(
-                            padding: EdgeInsets.only(
-                                left: 0.0, right: 0.0, top: 16.0),
-                            child: new TextFormField(
-                              autofocus: false,
-                              controller: _phoneNumberController,
-                              decoration: AppInputDecorator.boxDecorate(
-                                  "Enter phone number"),
-                            )),
-                        new Padding(
-                            padding: EdgeInsets.only(
-                                left: 0.0, right: 0.0, top: 16.0),
-                            child: new TextFormField(
-                              autofocus: false,
-                              controller: _policyNumberController,
-                              decoration: AppInputDecorator.boxDecorate(
-                                  "Enter policy number"),
-                            )),
-                        new Padding(
-                            padding: EdgeInsets.only(
-                                left: 0.0, right: 0.0, top: 16.0),
-                            child: new TextFormField(
-                              autofocus: false,
-                              controller: _addressController,
-                              decoration: AppInputDecorator.boxDecorate(
-                                  "Enter address"),
-                            )),
                         Padding(
-                          padding: EdgeInsets.only(top: 16, bottom: 16),
+                          padding: EdgeInsets.only(top: 0, bottom: 16),
                           child: Container(
                             decoration: BoxDecoration(
                                 borderRadius:
@@ -285,12 +197,12 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
                                     Border.all(width: 1.0, color: Colors.grey)),
                             child: TextButton(
                                 onPressed: () {
-                                  _selectDateRange();
+                                  _selectDate();
                                 },
                                 child: Row(
                                   children: [
                                     Text(
-                                      _selectedInsuranceDatePeriod,
+                                      _selectedAccidentDateDisplay,
                                       textAlign: TextAlign.left,
                                     ),
                                     Expanded(child: Container()),
@@ -300,6 +212,106 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
                                     ),
                                   ],
                                 )),
+                          ),
+                        ),
+                        new Padding(
+                            padding: EdgeInsets.only(
+                                left: 0.0, right: 0.0, top: 0, bottom: 16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  border: Border.all(
+                                      width: 1.0, color: Colors.grey)),
+                              child: TextButton(
+                                  onPressed: () {
+                                    _selectAccidentTimeDate();
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        _selectedAccidentTimeDisplay,
+                                        textAlign: TextAlign.left,
+                                      ),
+                                      Expanded(child: Container()),
+                                      Icon(
+                                        Icons.date_range_outlined,
+                                        size: 20,
+                                      ),
+                                    ],
+                                  )),
+                            )),
+                        new Padding(
+                          padding:
+                              EdgeInsets.only(left: 0.0, right: 0.0, top: 0),
+                          child: new TextFormField(
+                            controller: _vehicleNumberController,
+                            autofocus: false,
+                            decoration: AppInputDecorator.boxDecorate(
+                                "Vehicle registration no."),
+                            keyboardType: TextInputType.text,
+                          ),
+                        ),
+                        new Padding(
+                          padding:
+                              EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+                          child: new TextFormField(
+                            controller: _vehicleNumberController,
+                            autofocus: false,
+                            decoration: AppInputDecorator.boxDecorate(
+                                "Damage to vehicle"),
+                            keyboardType: TextInputType.text,
+                          ),
+                        ),
+                        new Padding(
+                          padding:
+                              EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+                          child: new TextFormField(
+                            controller: _placeOfAccidentController,
+                            autofocus: false,
+                            decoration: AppInputDecorator.boxDecorate(
+                                "Place of accident"),
+                            keyboardType: TextInputType.text,
+                          ),
+                        ),
+                        new Padding(
+                          padding:
+                              EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+                          child: new TextFormField(
+                            controller: _descriptionOfAccidentController,
+                            autofocus: false,
+                            decoration: AppInputDecorator.boxDecorate(
+                                "Description of accident"),
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                        ),
+                        Container(
+                          child: DropdownButton<String>(
+                            value: _vehicleLocaton,
+                            isExpanded: true,
+                            hint: Text('Location of Damaged Vehicle'),
+                            items: this._vehicleLocatons.map((value) {
+                              return DropdownMenuItem(
+                                value: value,
+                                child: new Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                this._vehicleLocaton = value.toString();
+                              });
+                            },
+                          ),
+                        ),
+                        new Padding(
+                          padding:
+                              EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+                          child: new TextFormField(
+                            controller: _addressOfDamagedVehicleController,
+                            autofocus: false,
+                            decoration: AppInputDecorator.boxDecorate(
+                                "Address of Damage Vehicle"),
+                            keyboardType: TextInputType.text,
                           ),
                         ),
                       ],
@@ -314,320 +326,219 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     ));
   }
 
-  //MARK: damage ui section
-  Widget _damageUi() {
+  //MARK: vehicle ui section
+  Widget _driverInfoUi() {
     return Container(
         child: new ListView(
       shrinkWrap: true,
       reverse: false,
       children: <Widget>[
         new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16, bottom: 8),
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
-            controller: _damageController,
+            controller: _nameOfDriverController,
             autofocus: false,
-            minLines: 2,
-            maxLines: 3,
-            decoration:
-                AppInputDecorator.boxDecorate("Explain Damage to vehicle"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-        Container(
-          child: DropdownButton(
-            isExpanded: true,
-            value: _insuranceType,
-            hint: Text('Choose Insurance Product'),
-            items: this._insuranceTypes.map((value) {
-              return DropdownMenuItem(
-                value: value,
-                child: new Text(value),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                this._insuranceType = value.toString();
-              });
-            },
+            decoration: AppInputDecorator.boxDecorate("Driver's Full Name"),
+            keyboardType: TextInputType.name,
           ),
         ),
         new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16, bottom: 0),
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
-            controller: _placeOfAccidentController,
+            controller: _addressOfDriverController,
             autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Place of accident"),
+            decoration: AppInputDecorator.boxDecorate("Address of Driver"),
+            keyboardType: TextInputType.name,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _phoneOfDriverController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Driver's Phone Number"),
+            keyboardType: TextInputType.name,
+          ),
+        ),
+        _passengerOnBoard
+            ? new Padding(
+                padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16.0),
+                child: new TextFormField(
+                  controller: _passengerDetailsController,
+                  autofocus: false,
+                  decoration:
+                      AppInputDecorator.boxDecorate("Details of Passengers"),
+                  keyboardType: TextInputType.text,
+                ),
+              )
+            : Container(),
+        _otherDriverDiscloseInsurance
+            ? new Padding(
+                padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16.0),
+                child: new TextFormField(
+                  controller: _otherDriversInsuranceCompanyController,
+                  autofocus: false,
+                  decoration: AppInputDecorator.boxDecorate(
+                      "Other Driver's Insurance Company"),
+                  keyboardType: TextInputType.text,
+                ),
+              )
+            : Container(),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16.0),
+          child: new TextFormField(
+            controller: _otherPartiesDetailController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Other Party's Detail"),
             keyboardType: TextInputType.text,
           ),
         ),
-        Padding(
-          padding: EdgeInsets.only(top: 16, bottom: 16),
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                border: Border.all(width: 1.0, color: Colors.grey)),
-            child: TextButton(
-                onPressed: () {
-                  _selectDate(true);
-                },
-                child: Row(
-                  children: [
-                    Text(
-                      _selectedAccidentDateDisplay,
-                      textAlign: TextAlign.left,
-                    ),
-                    Expanded(child: Container()),
-                    Icon(
-                      Icons.date_range_outlined,
-                      size: 20,
-                    ),
-                  ],
-                )),
+        _damagedToOtherProperties
+            ? new Padding(
+                padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+                child: new TextFormField(
+                  controller: _damageCausedToOtherDetailController,
+                  autofocus: false,
+                  decoration: AppInputDecorator.boxDecorate(
+                      "Damage Caused to Other Property"),
+                  keyboardType: TextInputType.text,
+                ),
+              )
+            : Container(),
+        _otherInvolvedInAccident
+            ? new Padding(
+                padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+                child: new TextFormField(
+                  controller: _injuredPersonDetailController,
+                  autofocus: false,
+                  decoration:
+                      AppInputDecorator.boxDecorate("Injured Person Details"),
+                  keyboardType: TextInputType.text,
+                ),
+              )
+            : Container(),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _policeStationDetailController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Police Station Details"),
+            keyboardType: TextInputType.text,
           ),
         )
       ],
     ));
   }
 
-  //MARK: damage ui section
-  Widget _damageTwoUi() {
-    return Container(
-        child: new Column(
-      children: <Widget>[
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8, bottom: 8),
-          child: new TextFormField(
-            controller: _descriptionOfAccidentController,
-            autofocus: false,
-            minLines: 2,
-            maxLines: 3,
-            decoration:
-                AppInputDecorator.boxDecorate("Description of Accident"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
-          child: CheckboxListTile(
-            contentPadding: EdgeInsets.all(0),
-            title: Text("Is the vehicle at repairer’s premises?"),
-            value: _vehicleWithRepairer,
-            onChanged: (newValue) {
-              setState(() {
-                _vehicleWithRepairer = newValue!;
-              });
-            },
-            controlAffinity:
-                ListTileControlAffinity.leading, //  <-- leading Checkbox
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16, bottom: 0),
-          child: new TextFormField(
-            controller: _repairerNameController,
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Repairer's name"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16, bottom: 0),
-          child: new TextFormField(
-            controller: _repairerShopNameController,
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Repairer's shop name"),
-            keyboardType: TextInputType.name,
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16, bottom: 0),
-          child: new TextFormField(
-            controller: _repairerPhoneNumberController,
-            autofocus: false,
-            decoration:
-                AppInputDecorator.boxDecorate("Repairer's phone number"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-      ],
-    ));
-  }
-
-//MARK: damage ui section
-  Widget _damageThreeUi() {
-    return Column(children: [
-      new Padding(
-        padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
-        child: CheckboxListTile(
-          contentPadding: EdgeInsets.all(0),
-          title: Text("Own Damage Claim?"),
-          value: _ownDamageReport,
-          onChanged: (newValue) {
-            setState(() {
-              _ownDamageReport = newValue!;
-            });
-          },
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
-      ),
-      new Padding(
-        padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
-        child: CheckboxListTile(
-          contentPadding: EdgeInsets.all(0),
-          title: Text("Injury  ?"),
-          value: _isInjuryReport,
-          onChanged: (newValue) {
-            setState(() {
-              _isInjuryReport = newValue!;
-            });
-          },
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
-      ),
-      new Padding(
-        padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
-        child: CheckboxListTile(
-          contentPadding: EdgeInsets.all(0),
-          title: Text("Death ?"),
-          value: _isDeathReport,
-          onChanged: (newValue) {
-            setState(() {
-              _isDeathReport = newValue!;
-            });
-          },
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
-      ),
-    ]);
-  }
-
-  //MARK: vehicle ui section
-  Widget _vehicleUi() {
+  Widget _checkActionsUi() {
     return Container(
         child: new ListView(
       shrinkWrap: true,
       reverse: false,
       children: <Widget>[
         Container(
-          child: DropdownButton(
-            isExpanded: true,
-            value: _vehicleMake,
-            hint: Text('Choose Vehicle Make'),
-            items: this._vehicleMakes.map((value) {
-              return DropdownMenuItem(
-                value: value,
-                child: new Text(value),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                this._vehicleMake = value.toString();
-              });
-            },
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _vehicleNumberController,
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter Vehicle number"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _yearOfMakeController,
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter Year of make"),
-            keyboardType: TextInputType.number,
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _nameOfOwnerController,
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter name of owner"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _addressOfOwnerController,
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter address of owner"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-      ],
-    ));
-  }
-
-  Widget _vehicleTwoUi() {
-    return Container(
-        child: new ListView(
-      shrinkWrap: true,
-      reverse: false,
-      children: <Widget>[
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _purposeOfUseController,
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter purpose of use"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _noOfTrailersController,
-            autofocus: false,
-            decoration:
-                AppInputDecorator.boxDecorate("Enter number of trailers"),
-            keyboardType: TextInputType.text,
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: CheckboxListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text("Were goods being carried?"),
-            value: _vehicleCarryingGoods,
+            title: Text("Were passengers on board ?"),
+            value: _passengerOnBoard,
             onChanged: (newValue) {
               setState(() {
-                _vehicleCarryingGoods = newValue!;
-              });
-            },
-            controlAffinity:
-                ListTileControlAffinity.leading, //  <-- leading Checkbox
-          ),
-        ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
-          child: CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text("Was a Side Car Attached?"),
-            value: _vehicleSideCarAttached,
-            onChanged: (newValue) {
-              setState(() {
-                _vehicleSideCarAttached = newValue!;
+                _passengerOnBoard = newValue!;
               });
             },
             controlAffinity: ListTileControlAffinity.leading,
           ),
         ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _chasisNumberController,
-            autofocus: false,
-            decoration:
-                AppInputDecorator.boxDecorate("Enter vehicle chasis number"),
-            keyboardType: TextInputType.text,
+        Container(
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title:
+                Text("Did other driver disclose his/her insurance company ?"),
+            value: _otherDriverDiscloseInsurance,
+            onChanged: (newValue) {
+              setState(() {
+                _otherDriverDiscloseInsurance = newValue!;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+        Container(
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text("Were other involved in the acccident ?"),
+            value: _otherInvolvedInAccident,
+            onChanged: (newValue) {
+              setState(() {
+                _otherInvolvedInAccident = newValue!;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+        Container(
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text("Was incident reported to the police ?"),
+            value: _reportedToPolice,
+            onChanged: (newValue) {
+              setState(() {
+                _reportedToPolice = newValue!;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+        Container(
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text("Was vehicle owner on vehicle ?"),
+            value: _ownerOnBoard,
+            onChanged: (newValue) {
+              setState(() {
+                _ownerOnBoard = newValue!;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+        Container(
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text("Was damage caused to other properties ?"),
+            value: _damagedToOtherProperties,
+            onChanged: (newValue) {
+              setState(() {
+                _damagedToOtherProperties = newValue!;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+        Container(
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text("Were other persons injured ?"),
+            value: _othersInjured,
+            onChanged: (newValue) {
+              setState(() {
+                _othersInjured = newValue!;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+        Container(
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text("Has any claim been made against you ?"),
+            value: _cliamAgainstYou,
+            onChanged: (newValue) {
+              setState(() {
+                _cliamAgainstYou = newValue!;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
           ),
         ),
       ],
@@ -641,8 +552,81 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
         padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
         child: Text("PLEASE UPLOAD THE FF. DOCUMENTS BELOW Eg. Police Report"),
       ),
+      SizedBox(
+        height: 16,
+      ),
       GestureDetector(
-        onTap: () {},
+        onTap: () {
+          pickFile();
+        },
+        child: new Container(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
+          decoration: BoxDecoration(
+              border: Border.all(color: secondaryColor.withAlpha(50), width: 5),
+              shape: BoxShape.rectangle,
+              color: Colors.grey.withAlpha(100)),
+          child: Column(
+            children: [
+              claimFile == null
+                  ? Icon(
+                      Icons.file_copy_outlined,
+                      size: 40,
+                      color: Colors.grey,
+                    )
+                  : Text(
+                      claimFile!.absolute.path.toString(),
+                      style: TextStyle(color: Colors.grey),
+                    ),
+              Text(
+                "Click to upload letter of claim",
+                style: TextStyle(color: Colors.grey),
+              )
+            ],
+          ),
+        ),
+      ),
+      SizedBox(
+        height: 16,
+      ),
+      GestureDetector(
+        onTap: () {
+          pickImage(ImagePickerType.DRIVERS_LICENSE_FRONT);
+        },
+        child: new Container(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
+          decoration: BoxDecoration(
+              border: Border.all(color: secondaryColor.withAlpha(50), width: 5),
+              shape: BoxShape.rectangle,
+              color: Colors.grey.withAlpha(100)),
+          child: Column(
+            children: [
+              licenseFrontFile == null
+                  ? Icon(
+                      Icons.file_copy_outlined,
+                      size: 40,
+                      color: Colors.grey,
+                    )
+                  : Image.file(
+                      licenseFrontFile!,
+                      height: 40,
+                      width: 80,
+                      fit: BoxFit.cover,
+                    ),
+              Text(
+                "Click to upload driver's license front",
+                style: TextStyle(color: Colors.grey),
+              )
+            ],
+          ),
+        ),
+      ),
+      SizedBox(
+        height: 16,
+      ),
+      GestureDetector(
+        onTap: () {
+          pickImage(ImagePickerType.DRIVERS_LICENSE_BACK);
+        },
         child: new Container(
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
           decoration: BoxDecoration(
@@ -657,19 +641,95 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
                 color: Colors.grey,
               ),
               Text(
-                "Click to upload document here",
+                "Click to upload drivers license back",
                 style: TextStyle(color: Colors.grey),
               )
             ],
           ),
         ),
       ),
-      new Padding(
-        padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
-        child: Text(
-          "Click inside the box above to upload all the specified documents one after the other. You can also upload all at once by dragging and dropping into the box",
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.red, fontSize: 12),
+      SizedBox(
+        height: 16,
+      ),
+      GestureDetector(
+        onTap: () {
+          pickImage(ImagePickerType.PIC_OF_DAMAGED_VEHICLE);
+        },
+        child: new Container(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
+          decoration: BoxDecoration(
+              border: Border.all(color: secondaryColor.withAlpha(50), width: 5),
+              shape: BoxShape.rectangle,
+              color: Colors.grey.withAlpha(100)),
+          child: Column(
+            children: [
+              Icon(
+                Icons.file_copy_outlined,
+                size: 40,
+                color: Colors.grey,
+              ),
+              Text(
+                "Click to upload picture of damaged vehicle showing registration number plate",
+                style: TextStyle(color: Colors.grey),
+              )
+            ],
+          ),
+        ),
+      ),
+      SizedBox(
+        height: 16,
+      ),
+      GestureDetector(
+        onTap: () {
+          pickImage(ImagePickerType.OTHER_DAMAGED_VEHICLE);
+        },
+        child: new Container(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
+          decoration: BoxDecoration(
+              border: Border.all(color: secondaryColor.withAlpha(50), width: 5),
+              shape: BoxShape.rectangle,
+              color: Colors.grey.withAlpha(100)),
+          child: Column(
+            children: [
+              Icon(
+                Icons.file_copy_outlined,
+                size: 40,
+                color: Colors.grey,
+              ),
+              Text(
+                "Click to upload picture of damaged third party vehicle showing registration number plate",
+                style: TextStyle(color: Colors.grey),
+              )
+            ],
+          ),
+        ),
+      ),
+      SizedBox(
+        height: 16,
+      ),
+      GestureDetector(
+        onTap: () {
+          pickImage(ImagePickerType.REPAIRERS_ESTIMATE);
+        },
+        child: new Container(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 8),
+          decoration: BoxDecoration(
+              border: Border.all(color: secondaryColor.withAlpha(50), width: 5),
+              shape: BoxShape.rectangle,
+              color: Colors.grey.withAlpha(100)),
+          child: Column(
+            children: [
+              Icon(
+                Icons.file_copy_outlined,
+                size: 40,
+                color: Colors.grey,
+              ),
+              Text(
+                "Click to upload picture of repairer's estimate",
+                style: TextStyle(color: Colors.grey),
+              )
+            ],
+          ),
         ),
       ),
     ]);
@@ -691,6 +751,21 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     );
   }
 
+  User user = new User();
+
+  static final String _defOccupation = "Choose occupation";
+  String _occupation = _defOccupation;
+  List<VehicleThings> _occupations = [VehicleThings(name: _defOccupation)];
+
+  static final String _defVehicleLocaton = "Choose Vehicle Location";
+  String _vehicleLocaton = _defVehicleLocaton;
+  List<String> _vehicleLocatons = [
+    _defVehicleLocaton,
+    "REPAIRER’S SHOP",
+    "POLICE STATION",
+    "OTHER"
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -698,6 +773,16 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     _focusNode.addListener(() {
       setState(() {});
       print('Has focus: $_focusNode.hasFocus');
+    });
+
+    _updateUser(true);
+  }
+
+  _updateUser(bool fetchData) {
+    DBOperations().getUser().then((value) {
+      setState(() {
+        this.user = value;
+      });
     });
   }
 
@@ -744,103 +829,50 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
 
   void handleStepClicks() {
     if (_currentStep == 0) {
-      var name = _fullNameController.value.text.toString().trim();
-      var number = _phoneNumberController.value.text.toString().trim();
-      var address = _addressController.value.text.toString().trim();
-      var occupation = _occupationController.value.text.toString().trim();
-      var branch = _branchController.value.text.toString().trim();
-      if (!Validator().isValidName(name)) {
-        this._showMessage("Enter a valid name");
-      } else if (!Validator().isValidInput(occupation)) {
-        this._showMessage("Enter occupation");
-      } else if (!Validator().isValidInput(branch)) {
-        this._showMessage("Enter branch");
-      } else if (!Validator().isValidPhoneNumber(number)) {
-        this._showMessage("Enter a valid number");
-      } else if (!Validator().isValidInput(address)) {
-        this._showMessage("Enter a valid address");
-      } else if (_selectedInsuranceDatePeriod == _defInsurancePeriodDisplay) {
-        this._showMessage("Select Insurance date period");
-      } else {
-        //MARK: continue to next
-        this.increaseStepper();
-      }
-    } else if (_currentStep == 1) {
-      var vehicleNumber = _vehicleNumberController.value.text.toString().trim();
-      var vehicleMake = _yearOfMakeController.value.text.toString().trim();
-      var nameOfOwner = _nameOfOwnerController.value.text.toString().trim();
-      var ownerAddress = _addressOfOwnerController.value.text.toString().trim();
+      var noTimeSelected =
+          _defAccidentTimeDisplay == _selectedAccidentTimeDisplay;
+      var noDateSelected =
+          _defAccidentDateDisplay == _selectedAccidentDateDisplay;
+      var damageToVehicle = _damageController.text.trim();
+      var regNo = _vehicleNumberController.text.trim();
+      var noLocationProvided = _vehicleLocaton == _defVehicleLocaton;
+      var addressOfDamage = _addressOfDamagedVehicleController.text.trim();
 
-      if (_vehicleMake == _defVehicleMake) {
-        this._showMessage("Select vehicle make");
-      } else if (!Validator().isValidInput(vehicleNumber)) {
-        this._showMessage("Enter vehicle number");
-      } else if (!Validator().isValidInput(vehicleMake)) {
-        this._showMessage("Enter vehicle year of make");
-      } else if (!Validator().isValidInput(nameOfOwner)) {
-        this._showMessage("Enter owner's name");
-      } else if (!Validator().isValidInput(ownerAddress)) {
-        this._showMessage("Enter owner's address");
+      if (noDateSelected || noTimeSelected) {
+        this._showMessage("Select date and time of accident");
+      } else if (!Validator().isValidInput(regNo)) {
+        this._showMessage("State vehicle registeration number");
+      } else if (!Validator().isValidInput(damageToVehicle)) {
+        this._showMessage("State the damage caused");
+      } else if (noLocationProvided) {
+        this._showMessage("Enter location of damaged vehicle");
+      } else if (!Validator().isValidInput(addressOfDamage)) {
+        this._showMessage("Enter address of damaged vehicle");
       } else {
         //MARK: continue to next
         this.increaseStepper();
       }
     } else if (_currentStep == 2) {
-      var purpose = _purposeOfUseController.value.text.toString().trim();
-      var noOfTrailers = _noOfTrailersController.value.text.toString().trim();
-      var chasisNumber = _chasisNumberController.value.text.toString().trim();
-      if (!Validator().isValidInput(purpose)) {
-        this._showMessage("Enter purpose of use");
-      } else if (!Validator().isValidInput(noOfTrailers)) {
-        this._showMessage("Enter number of trailers");
-      } else if (!Validator().isValidInput(chasisNumber)) {
-        this._showMessage("Enter chasis number");
+      var driversName = _nameOfDriverController.text.trim();
+      var driversAddress = _addressOfDriverController.text.trim();
+      var driversPhone = _phoneOfDriverController.text.trim();
+      var detailOfPassenger = _passengerDetailsController.text.trim();
+      if (!Validator().isValidInput(driversName)) {
+        this._showMessage("Enter driver's name");
+      } else if (!Validator().isValidInput(driversAddress)) {
+        this._showMessage("Enter driver's address");
+      } else if (!Validator().isValidInput(driversPhone)) {
+        this._showMessage("Enter driver's phone");
+      } else if (!Validator().isValidInput(detailOfPassenger)) {
+        this._showMessage("Enter passenger details");
       } else {
         //MARK: continue to next
         this.increaseStepper();
       }
-    } else if (_currentStep == 3) {
-      var damageExplanation = _damageController.value.text.toString().trim();
-      var placeOfAccident =
-          _placeOfAccidentController.value.text.toString().trim();
-
-      if (!Validator().isValidInput(damageExplanation)) {
-        this._showMessage("Explain the damage caused");
-      } else if (_insuranceType == _defInsuranceType) {
-        this._showMessage("Select the insurance type");
-      } else if (!Validator().isValidInput(placeOfAccident)) {
-        this._showMessage("State the accident place");
-      } else if (_selectedAccidentDateDisplay == _defAccidentDateDisplay) {
-        this._showMessage("State the accident date");
-      } else {
-        //MARK: continue to next
-        this.increaseStepper();
-      }
-    } else if (_currentStep == 4) {
-      var accidentDescription =
-          _descriptionOfAccidentController.text.toString().trim();
-      var repairerName = _repairerNameController.text.toString().trim();
-      var repairerShopName = _repairerShopNameController.text.toString().trim();
-      var repairerPhone = _repairerPhoneNumberController.text.toString().trim();
-      if (!Validator().isValidInput(accidentDescription)) {
-        this._showMessage("Enter accident description");
-      } else if (_vehicleWithRepairer &&
-          !Validator().isValidInput(repairerName)) {
-        this._showMessage("Enter repairer's name");
-      } else if (_vehicleWithRepairer &&
-          !Validator().isValidInput(repairerShopName)) {
-        this._showMessage("Enter repairer's shop name");
-      } else if (_vehicleWithRepairer &&
-          !Validator().isValidInput(repairerPhone)) {
-        this._showMessage("Enter repairer's phone number");
-      } else {
-        //MARK: continue to next
-        this.increaseStepper();
-      }
-    } else if (_currentStep == 5) {
+    } else if (_currentStep == 1) {
       this.increaseStepper();
-    } else if (_currentStep == 6) {
-      this._checkAllRecordsAndSubmit();
+    } else if (_currentStep == 3) {
+      this._checkAllRecordsAndSubmit(context);
     }
   }
 
@@ -853,16 +885,138 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     }
   }
 
-  void _checkAllRecordsAndSubmit() {
-    _showMessage("Final Stage To Submit");
+  void _checkAllRecordsAndSubmit(BuildContext buildContext) {
+    var driversName = _nameOfDriverController.text.trim();
+    var driversAddress = _addressOfDriverController.text.trim();
+    var driversPhone = _phoneOfDriverController.text.trim();
+    var detailOfPassenger = _passengerDetailsController.text.trim();
+
+    var timeSelected = _selectedAccidentTimeDisplay;
+    var dateSelected = _selectedAccidentDateDisplay;
+    var damageToVehicle = _damageController.text.trim();
+    var regNo = _vehicleNumberController.text.trim();
+    var description = _descriptionOfAccidentController.text.trim();
+    var locationProvided = _vehicleLocaton;
+    var addressOfDamage = _addressOfDamagedVehicleController.text.trim();
+    var policeStationDetail = _policeStationDetailController.text.trim();
+    var otherDriversInsurance =
+        _otherDriversInsuranceCompanyController.text.trim();
+    var injuredPersonDetail = _injuredPersonDetailController.text.trim();
+    var otherParties = _otherPartiesDetailController.text.trim();
+    var damagedCaused = _damageCausedToOtherDetailController.text.trim();
+
+    final progress = ProgressHUD.of(buildContext);
+    progress?.show();
+
+    Map<String, String> data = new Map();
+    data.putIfAbsent("time_of_accident", () => timeSelected);
+    data.putIfAbsent("vehicle_registration_number", () => regNo);
+    data.putIfAbsent("damage_to_vehicle", () => damageToVehicle);
+    data.putIfAbsent("date_of_accident", () => dateSelected);
+    data.putIfAbsent("place_of_acident", () => locationProvided);
+    data.putIfAbsent("description_of_accident", () => description);
+    data.putIfAbsent("location_of_damaged_vehicle", () => locationProvided);
+    data.putIfAbsent("address_of_damaged_vehicle", () => addressOfDamage);
+    data.putIfAbsent(
+        "was_vehicle_owner_on_vehicle", () => _ownerOnBoard ? "YES" : "NO");
+    data.putIfAbsent("name_of_driver", () => driversName);
+    data.putIfAbsent("address_of_driver", () => driversAddress);
+    data.putIfAbsent("phone_number_of_driver", () => driversPhone);
+    data.putIfAbsent("was_incident_report_to_police",
+        () => _reportedToPolice ? "YES" : "NO");
+    data.putIfAbsent("police_station_details", () => policeStationDetail);
+    data.putIfAbsent(
+        "were_passengers_in_vehicle", () => _passengerOnBoard ? "YES" : "NO");
+    data.putIfAbsent("details_of_passengers", () => detailOfPassenger);
+    data.putIfAbsent("were_others_involved_in_accident",
+        () => _otherInvolvedInAccident ? "YES" : "NO");
+    data.putIfAbsent("other_parties_details", () => otherParties);
+    data.putIfAbsent("was_damaged_caused_to_other_properties",
+        () => _damagedToOtherProperties ? "YES" : "NO");
+    data.putIfAbsent(
+        "damaged_caused_to_other_properties_details", () => damagedCaused);
+    data.putIfAbsent(
+        "were_other_persons_injured", () => _othersInjured ? "YES" : "NO");
+    data.putIfAbsent("injured_persons_details", () => injuredPersonDetail);
+    data.putIfAbsent("did_other_driver_disclose_insurance_company",
+        () => _otherDriverDiscloseInsurance ? "YES" : "NO");
+    data.putIfAbsent(
+        "other_driver_insurance_company_name", () => otherDriversInsurance);
+    data.putIfAbsent("has_any_claim_been_made_against_you",
+        () => _cliamAgainstYou ? "YES" : "NO");
+
+    List<File?> filesToUpload = [
+      claimFile,
+      licenseFrontFile,
+      licenseBackFile,
+      damagedVehicleFile,
+      otherDamagedVehicleFile,
+      otherPropertyFile,
+      estimateFile
+    ];
+
+    List<String> fileKeysToUpload = [
+      "claim_file",
+      "driver_license_front",
+      "driver_license_back",
+      "picture_of_damaged_vehicle",
+      "picture_of_third_party_damaged_vehicle",
+      "other_damaged_properties",
+      "repairers_estimate"
+    ];
+
+    ApiService.get(this.user.token)
+        .uploadFiles(
+            "POST", ApiUrl().fileClaim(), filesToUpload, fileKeysToUpload, data)
+        .then((value) {
+      String responseCode = value["response_code"].toString();
+      String message = "";
+      if (responseCode == "100") {
+        message = value["message"].toString();
+      } else {
+        message = value["detail"].toString();
+      }
+      PopUpHelper(context, "File Claim", message).showMessageDialogWith("OK",
+          () {
+        if (responseCode == "100") {
+          Navigator.pop(context);
+        }
+      });
+    }).whenComplete(() {
+      progress?.dismiss();
+    }).onError((error, stackTrace) {
+      PopUpHelper(context, "Policy", "Failed to request for claim")
+          .showMessageDialog("OK");
+    });
   }
 
   void pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
-      // File file = File(result.files.single.path);
-    } else {
-      // User canceled the picker
+      claimFile = File(result.files.single.path!);
+    }
+  }
+
+  void pickImage(ImagePickerType type) async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      final imageFile = File(image.path);
+      if (type == ImagePickerType.DRIVERS_LICENSE_FRONT) {
+        licenseFrontFile = imageFile;
+      } else if (type == ImagePickerType.DRIVERS_LICENSE_BACK) {
+        licenseBackFile = imageFile;
+      } else if (type == ImagePickerType.DRIVERS_LICENSE_BACK) {
+        licenseBackFile = imageFile;
+      } else if (type == ImagePickerType.PIC_OF_DAMAGED_VEHICLE) {
+        damagedVehicleFile = imageFile;
+      } else if (type == ImagePickerType.OTHER_DAMAGED_VEHICLE) {
+        otherDamagedVehicleFile = imageFile;
+      } else if (type == ImagePickerType.REPAIRERS_ESTIMATE) {
+        estimateFile = imageFile;
+      } else if (type == ImagePickerType.OTHER_DAMAGED_PROPERTY) {
+        otherPropertyFile = imageFile;
+      }
     }
   }
 }

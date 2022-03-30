@@ -75,11 +75,11 @@ class NetworkUtil {
   }
 
   //MARK: handle the file upload
-  Future<http.StreamedResponse> uploadFile(
+  Future<dynamic> uploadMultipleFiles(
       String httpMethod,
       String url,
-      File imageFile,
-      String uploadKey,
+      List<File?> imageFiles,
+      List<String> uploadKeys,
       Map<String, String> headers,
       Map body,
       encoding) async {
@@ -87,32 +87,30 @@ class NetworkUtil {
     if (connectivityResult == ConnectivityResult.none) {
       throw Exception(noInternetConnection);
     }
-
-    var stream = new http.ByteStream(
-      DelegatingStream.typed(imageFile.openRead()),
-    );
-    var length = await imageFile.length();
     var uri = Uri.parse(url);
     var request = new http.MultipartRequest(httpMethod, uri);
     body.forEach((key, value) {
       request.fields[key] = value;
     });
-    var multipartFile = new http.MultipartFile("$uploadKey", stream, length,
-        filename: basename(imageFile.path));
-    request.headers.addAll(headers);
-    request.files.add(multipartFile);
-    var response = await request.send();
-    print(response.statusCode);
-    var statusCode = response.statusCode;
-    if (statusCode == 200) {
-      return response;
-    } else if (statusCode >= 401 && statusCode <= 499) {
-      throw new Exception(missingError);
-    } else if (statusCode >= 500 && statusCode <= 600) {
-      throw new Exception(serverError);
-    } else {
-      throw new Exception("Error while connecting to server.");
+    List<http.MultipartFile> allFiles = [];
+    for (var i = 0; i < imageFiles.length; i++) {
+      var imageFile = imageFiles[i];
+      var uploadKey = uploadKeys[i];
+      if (imageFile != null) {
+        var stream = new http.ByteStream(
+          DelegatingStream.typed(imageFile.openRead()),
+        );
+        var length = await imageFile.length();
+        var multipartFile = new http.MultipartFile("$uploadKey", stream, length,
+            filename: basename(imageFile.path));
+        allFiles.add(multipartFile);
+      }
     }
+    request.headers.addAll(headers);
+    request.files.addAll(allFiles);
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+    return handleResponse(response);
   }
 
   //MARK: handle response

@@ -230,6 +230,7 @@ class _HomePageState extends State<HomePage> {
   void _showDownLoadSticker(BuildContext buildContext) {
     showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (context) {
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -307,6 +308,7 @@ class _HomePageState extends State<HomePage> {
   _showDownloadOption(String stickerUrl, String certUrl, String scheduleUrl) {
     showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (context) {
           return SafeArea(
               child: Column(

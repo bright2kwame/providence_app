@@ -707,7 +707,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration:
                 AppInputDecorator.boxDecorate("Enter manufaturing year"),
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.number,
           ),
         ),
         new Padding(
@@ -716,7 +716,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             controller: _vehicleColorController,
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter vehicle color"),
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.text,
           ),
         ),
       ],
@@ -755,7 +755,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             controller: _companyNameController,
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter company name"),
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.text,
           ),
         ),
         new Padding(
@@ -764,7 +764,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             controller: _contactNameController,
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter contact name"),
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.name,
           ),
         ),
         new Padding(
@@ -773,7 +773,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             controller: _contactMobileController,
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter contact mobile"),
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.text,
           ),
         ),
         new Padding(
@@ -782,7 +782,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             controller: _contactPositionController,
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter contact position"),
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.text,
           ),
         ),
         Container(
@@ -1287,7 +1287,6 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       data.putIfAbsent("industry", () => vehicleThingsIndustry.id);
     }
 
-    print(data);
     final progress = ProgressHUD.of(buildContext);
     progress?.show();
 

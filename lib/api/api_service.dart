@@ -100,12 +100,44 @@ class ApiService {
   //MARK: upload image to server
   Future<StreamedResponse> uploadAvatar(String httpMethod, String url,
       String uploadKey, File imageFile, Map<String, String> data) {
+    List<File?> files = [imageFile];
+    List<String> uploadKeys = [uploadKey];
     return _netUtil
-        .uploadFile(
-            httpMethod, url, imageFile, uploadKey, basicHeaders, data, utf8)
-        .then((StreamedResponse data) {
-      print("STATUS: ${data.statusCode} DATA: $data");
-      return data;
+        .uploadMultipleFiles(
+            httpMethod, url, files, uploadKeys, basicHeaders, data, utf8)
+        .then((dynamic data) {
+      print(basicHeaders);
+      var statusCode = data["response_code"];
+      print("STATUS: $statusCode DATA: $data");
+      if (statusCode == "100") {
+        return data;
+      } else {
+        throw Exception(
+            data["detail"] != null ? data["detail"] : data.toString());
+      }
+    });
+  }
+
+  //MARK: upload images to server
+  Future<dynamic> uploadFiles(
+      String httpMethod,
+      String url,
+      List<File?> imageFiles,
+      List<String> uploadKeys,
+      Map<String, String> data) {
+    return _netUtil
+        .uploadMultipleFiles(
+            httpMethod, url, imageFiles, uploadKeys, basicHeaders, data, utf8)
+        .then((dynamic data) {
+      print(basicHeaders);
+      var statusCode = data["response_code"];
+      print("STATUS: $statusCode DATA: $data");
+      if (statusCode == "100") {
+        return data;
+      } else {
+        throw Exception(
+            data["detail"] != null ? data["detail"] : data.toString());
+      }
     });
   }
 }

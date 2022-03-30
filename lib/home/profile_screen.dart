@@ -398,6 +398,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _changePhoneNumber(BuildContext buildContext) {
     showModalBottomSheet(
+        isScrollControlled: true,
         context: context,
         builder: (context) {
           return Column(
@@ -470,6 +471,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void _changePassword(BuildContext buildContext) {
     showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (context) {
           return SafeArea(
               child: Column(
@@ -551,6 +553,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void _changeProfile(BuildContext buildContext) {
     showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (context) {
           return SafeArea(
               child: Column(
