@@ -473,80 +473,83 @@ class _ProfilePageState extends State<ProfilePage> {
         context: context,
         isScrollControlled: true,
         builder: (context) {
-          return SafeArea(
+          return Padding(
+              padding: MediaQuery.of(context).viewInsets,
               child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(
-                    top: NumberConstant.bottomSheetContentPadding,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding),
-                child: Text(
-                  "Provide the information below to change password",
-                  style: WidgetHelper.textStyle16LightGray,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: 16,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding,
-                    bottom: 16),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  onFieldSubmitted: (String value) {
-                    _passwordFocus.unfocus();
-                  },
-                  validator: (val) => Validator().validatePassword(val!),
-                  onSaved: (val) => this._password = val!,
-                  controller: this._passwordController,
-                  obscureText: true,
-                  decoration: AppInputDecorator.boxDecorate("Current password"),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: 16,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding,
-                    bottom: 16),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  onFieldSubmitted: (String value) {
-                    _passwordAgainFocus.unfocus();
-                  },
-                  validator: (val) => Validator().validatePassword(val!),
-                  controller: this._passwordAgainController,
-                  obscureText: true,
-                  decoration: AppInputDecorator.boxDecorate("Repeat password"),
-                ),
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.only(
-                    top: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding,
-                    right: NumberConstant.bottomSheetContentPadding),
-                child: TextButton(
-                  style: WidgetHelper.raisedButtonStyle,
-                  onPressed: () {
-                    this._startPassword(buildContext);
-                  },
-                  child: Text('Change Password'),
-                ),
-              )
-            ],
-          ));
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: NumberConstant.bottomSheetContentPadding,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding),
+                    child: Text(
+                      "Provide the information below to change password",
+                      style: WidgetHelper.textStyle16LightGray,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 16,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding,
+                        bottom: 16),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      onFieldSubmitted: (String value) {
+                        _passwordFocus.unfocus();
+                      },
+                      validator: (val) => Validator().validatePassword(val!),
+                      onSaved: (val) => this._password = val!,
+                      controller: this._passwordController,
+                      obscureText: true,
+                      decoration:
+                          AppInputDecorator.boxDecorate("Current password"),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 16,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding,
+                        bottom: 16),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      onFieldSubmitted: (String value) {
+                        _passwordAgainFocus.unfocus();
+                      },
+                      validator: (val) => Validator().validatePassword(val!),
+                      controller: this._passwordAgainController,
+                      obscureText: true,
+                      decoration:
+                          AppInputDecorator.boxDecorate("Repeat password"),
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: EdgeInsets.only(
+                        top: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding,
+                        right: NumberConstant.bottomSheetContentPadding),
+                    child: TextButton(
+                      style: WidgetHelper.raisedButtonStyle,
+                      onPressed: () {
+                        this._startPassword(buildContext);
+                      },
+                      child: Text('Change Password'),
+                    ),
+                  )
+                ],
+              ));
         });
   }
 
@@ -555,98 +558,101 @@ class _ProfilePageState extends State<ProfilePage> {
         context: context,
         isScrollControlled: true,
         builder: (context) {
-          return SafeArea(
+          return Padding(
+              padding: MediaQuery.of(context).viewInsets,
               child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(
-                    top: NumberConstant.bottomSheetContentPadding,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding),
-                child: Text(
-                  "Provide the information below to update profile",
-                  textAlign: TextAlign.center,
-                  style: WidgetHelper.textStyle16LightGray,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: 32,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  onFieldSubmitted: (String value) {
-                    _firstNameFocus.unfocus();
-                  },
-                  validator: (val) => Validator().validateName(val!),
-                  onSaved: (val) => this._firstName = val!,
-                  controller: this._firstNameController,
-                  decoration: AppInputDecorator.boxDecorate("Enter first name"),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: 16,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  onFieldSubmitted: (String value) {
-                    _lastNameFocus.unfocus();
-                  },
-                  validator: (val) => Validator().validateName(val!),
-                  onSaved: (val) => this._lastName = val!,
-                  controller: this._lastNameController,
-                  decoration: AppInputDecorator.boxDecorate("Enter last name"),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: 16,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  onFieldSubmitted: (String value) {
-                    _emailFocus.unfocus();
-                  },
-                  validator: (val) => Validator().validateEmail(val!),
-                  onSaved: (val) => this._email = val!,
-                  controller: this._emailController,
-                  decoration:
-                      AppInputDecorator.boxDecorate("Enter email address"),
-                ),
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.only(
-                    top: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding,
-                    right: NumberConstant.bottomSheetContentPadding),
-                child: TextButton(
-                  style: WidgetHelper.raisedButtonStyle,
-                  onPressed: () {
-                    this._startProfileUpdate(buildContext);
-                  },
-                  child: Text('Update Profile'),
-                ),
-              )
-            ],
-          ));
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: NumberConstant.bottomSheetContentPadding,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding),
+                    child: Text(
+                      "Provide the information below to update profile",
+                      textAlign: TextAlign.center,
+                      style: WidgetHelper.textStyle16LightGray,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 32,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      onFieldSubmitted: (String value) {
+                        _firstNameFocus.unfocus();
+                      },
+                      validator: (val) => Validator().validateName(val!),
+                      onSaved: (val) => this._firstName = val!,
+                      controller: this._firstNameController,
+                      decoration:
+                          AppInputDecorator.boxDecorate("Enter first name"),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 16,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      onFieldSubmitted: (String value) {
+                        _lastNameFocus.unfocus();
+                      },
+                      validator: (val) => Validator().validateName(val!),
+                      onSaved: (val) => this._lastName = val!,
+                      controller: this._lastNameController,
+                      decoration:
+                          AppInputDecorator.boxDecorate("Enter last name"),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 16,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      onFieldSubmitted: (String value) {
+                        _emailFocus.unfocus();
+                      },
+                      validator: (val) => Validator().validateEmail(val!),
+                      onSaved: (val) => this._email = val!,
+                      controller: this._emailController,
+                      decoration:
+                          AppInputDecorator.boxDecorate("Enter email address"),
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: EdgeInsets.only(
+                        top: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding,
+                        right: NumberConstant.bottomSheetContentPadding),
+                    child: TextButton(
+                      style: WidgetHelper.raisedButtonStyle,
+                      onPressed: () {
+                        this._startProfileUpdate(buildContext);
+                      },
+                      child: Text('Update Profile'),
+                    ),
+                  )
+                ],
+              ));
         });
   }
 

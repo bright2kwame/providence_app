@@ -232,42 +232,44 @@ class _HomePageState extends State<HomePage> {
         context: context,
         isScrollControlled: true,
         builder: (context) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
-                child: Text("Enter vehicle number"),
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  validator: (val) => Validator().validatePassword(val!),
-                  onSaved: (val) => this._vehicleNumber = val!,
-                  controller: this._vehicleNumberController,
-                  decoration:
-                      AppInputDecorator.boxDecorate("Vehicle Registration No."),
-                ),
-              ),
-              SafeArea(
-                  child: Padding(
-                padding: EdgeInsets.only(top: 64, left: 32, right: 32),
-                child: TextButton(
-                  style: WidgetHelper.raisedButtonStyle,
-                  onPressed: () {
-                    this._downLoadSticker(buildContext);
-                  },
-                  child: Text('Download Sticker'),
-                ),
-              ))
-            ],
-          );
+          return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 32, right: 32, left: 16),
+                    child: Text("Enter vehicle number"),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 16, right: 32, left: 16, bottom: 16),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      validator: (val) => Validator().validatePassword(val!),
+                      onSaved: (val) => this._vehicleNumber = val!,
+                      controller: this._vehicleNumberController,
+                      decoration: AppInputDecorator.boxDecorate(
+                          "Vehicle Registration No."),
+                    ),
+                  ),
+                  SafeArea(
+                      child: Padding(
+                    padding: EdgeInsets.only(top: 64, left: 32, right: 32),
+                    child: TextButton(
+                      style: WidgetHelper.raisedButtonStyle,
+                      onPressed: () {
+                        this._downLoadSticker(buildContext);
+                      },
+                      child: Text('Download Sticker'),
+                    ),
+                  ))
+                ],
+              ));
         });
   }
 
@@ -310,49 +312,50 @@ class _HomePageState extends State<HomePage> {
         context: context,
         isScrollControlled: true,
         builder: (context) {
-          return SafeArea(
+          return Padding(
+              padding: MediaQuery.of(context).viewInsets,
               child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
-                child: Text(
-                  "Select Download Types",
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              stickerUrl.isNotEmpty
-                  ? ListTile(
-                      leading: new Icon(Icons.sticky_note_2),
-                      title: new Text('Download Sticker'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        this._openStickerPage(stickerUrl);
-                      },
-                    )
-                  : Container(),
-              certUrl.isNotEmpty
-                  ? ListTile(
-                      leading: new Icon(Icons.reviews_sharp),
-                      title: new Text('View Certificate'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        this._openStickerPage(certUrl);
-                      },
-                    )
-                  : Container(),
-              scheduleUrl.isNotEmpty
-                  ? ListTile(
-                      leading: new Icon(Icons.event),
-                      title: new Text('View Schedule'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        this._openStickerPage(scheduleUrl);
-                      },
-                    )
-                  : Container(),
-            ],
-          ));
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 32, right: 32, left: 16),
+                    child: Text(
+                      "Select Download Types",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  stickerUrl.isNotEmpty
+                      ? ListTile(
+                          leading: new Icon(Icons.sticky_note_2),
+                          title: new Text('Download Sticker'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            this._openStickerPage(stickerUrl);
+                          },
+                        )
+                      : Container(),
+                  certUrl.isNotEmpty
+                      ? ListTile(
+                          leading: new Icon(Icons.reviews_sharp),
+                          title: new Text('View Certificate'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            this._openStickerPage(certUrl);
+                          },
+                        )
+                      : Container(),
+                  scheduleUrl.isNotEmpty
+                      ? ListTile(
+                          leading: new Icon(Icons.event),
+                          title: new Text('View Schedule'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            this._openStickerPage(scheduleUrl);
+                          },
+                        )
+                      : Container(),
+                ],
+              ));
         });
   }
 
