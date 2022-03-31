@@ -401,70 +401,74 @@ class _ProfilePageState extends State<ProfilePage> {
         isScrollControlled: true,
         context: context,
         builder: (context) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(
-                    top: NumberConstant.bottomSheetContentPadding,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding),
-                child: Text(
-                  "Enter phone and proceed to verify",
-                  style: WidgetHelper.textStyle16LightGray,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: 16,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding,
-                    bottom: 16),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  onFieldSubmitted: (String value) {
-                    _passwordFocus.unfocus();
-                  },
-                  controller: this._phoneController,
-                  obscureText: true,
-                  decoration: AppInputDecorator.boxDecorate("Enter new number"),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: 16,
-                    right: NumberConstant.bottomSheetContentPadding,
-                    left: NumberConstant.bottomSheetContentPadding,
-                    bottom: 16),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  controller: this._verificationCodeController,
-                  decoration:
-                      AppInputDecorator.boxDecorate("Enter verification code"),
-                ),
-              ),
-              SafeArea(
-                  child: Container(
-                width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.only(top: 32, left: 32, right: 32),
-                child: TextButton(
-                  style: WidgetHelper.raisedButtonStyle,
-                  onPressed: () {
-                    this._startChangePhoneNumber(buildContext);
-                  },
-                  child: Text('Update Phone Number'),
-                ),
-              ))
-            ],
-          );
+          return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: SafeArea(
+                  child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: NumberConstant.bottomSheetContentPadding,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding),
+                    child: Text(
+                      "Enter phone and proceed to verify",
+                      style: WidgetHelper.textStyle16LightGray,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 16,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding,
+                        bottom: 16),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      onFieldSubmitted: (String value) {
+                        _passwordFocus.unfocus();
+                      },
+                      controller: this._phoneController,
+                      obscureText: true,
+                      decoration:
+                          AppInputDecorator.boxDecorate("Enter new number"),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 16,
+                        right: NumberConstant.bottomSheetContentPadding,
+                        left: NumberConstant.bottomSheetContentPadding,
+                        bottom: 16),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      controller: this._verificationCodeController,
+                      decoration: AppInputDecorator.boxDecorate(
+                          "Enter verification code"),
+                    ),
+                  ),
+                  SafeArea(
+                      child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: EdgeInsets.only(top: 32, left: 32, right: 32),
+                    child: TextButton(
+                      style: WidgetHelper.raisedButtonStyle,
+                      onPressed: () {
+                        this._startChangePhoneNumber(buildContext);
+                      },
+                      child: Text('Update Phone Number'),
+                    ),
+                  ))
+                ],
+              )));
         });
   }
 
@@ -475,7 +479,8 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context) {
           return Padding(
               padding: MediaQuery.of(context).viewInsets,
-              child: Column(
+              child: SafeArea(
+                  child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Padding(
@@ -549,7 +554,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   )
                 ],
-              ));
+              )));
         });
   }
 
@@ -560,7 +565,8 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context) {
           return Padding(
               padding: MediaQuery.of(context).viewInsets,
-              child: Column(
+              child: SafeArea(
+                  child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Padding(
@@ -652,7 +658,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   )
                 ],
-              ));
+              )));
         });
   }
 

@@ -131,45 +131,48 @@ class _PolicieScreenState extends State<PolicieScreen> {
     showModalBottomSheet(
         context: context,
         builder: (context) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 32, right: 32, left: 16),
-                child: Text("Enter vehicle number"),
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.only(top: 16, right: 32, left: 16, bottom: 16),
-                child: TextFormField(
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  style: WidgetHelper.textStyle16,
-                  textAlign: TextAlign.left,
-                  onFieldSubmitted: (String value) {
-                    _vehicleNumberFocus.unfocus();
-                  },
-                  validator: (val) => Validator().validatePassword(val!),
-                  onSaved: (val) => this._vehicleNumber = val!,
-                  controller: this._vehicleNumberController,
-                  decoration:
-                      AppInputDecorator.boxDecorate("Vehicle Registration No."),
-                ),
-              ),
-              SafeArea(
-                  child: Padding(
-                padding: EdgeInsets.only(top: 64, left: 32, right: 32),
-                child: TextButton(
-                  style: WidgetHelper.raisedButtonStyle,
-                  onPressed: () {
-                    this._getExistingPlolicy(buildContext);
-                  },
-                  child: Text('Add Policy'),
-                ),
-              ))
-            ],
-          );
+          return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: SafeArea(
+                  child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 32, right: 32, left: 16),
+                    child: Text("Enter vehicle number"),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 16, right: 32, left: 16, bottom: 16),
+                    child: TextFormField(
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      style: WidgetHelper.textStyle16,
+                      textAlign: TextAlign.left,
+                      onFieldSubmitted: (String value) {
+                        _vehicleNumberFocus.unfocus();
+                      },
+                      validator: (val) => Validator().validatePassword(val!),
+                      onSaved: (val) => this._vehicleNumber = val!,
+                      controller: this._vehicleNumberController,
+                      decoration: AppInputDecorator.boxDecorate(
+                          "Vehicle Registration No."),
+                    ),
+                  ),
+                  SafeArea(
+                      child: Padding(
+                    padding: EdgeInsets.only(top: 64, left: 32, right: 32),
+                    child: TextButton(
+                      style: WidgetHelper.raisedButtonStyle,
+                      onPressed: () {
+                        this._getExistingPlolicy(buildContext);
+                      },
+                      child: Text('Add Policy'),
+                    ),
+                  ))
+                ],
+              )));
         });
   }
 
