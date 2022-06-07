@@ -138,4 +138,9 @@ class ApiUrl {
   String getIndustryUrl() {
     return getBaseUrl() + "users/get_industry/";
   }
+
+  //MARK: get colors
+  String getColors() {
+    return getBaseUrl() + "users/get_colors/";
+  }
 }

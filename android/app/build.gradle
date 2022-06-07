@@ -42,8 +42,8 @@ android {
         applicationId "com.provident.insurance.app"
         minSdkVersion 16
         targetSdkVersion 31
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        versionCode 4
+        versionName "1.0.3"
         multiDexEnabled true
     }
     signingConfigs {

@@ -8,6 +8,8 @@ import 'package:provident_insurance/constants/color.dart';
 import 'package:provident_insurance/model/db_operations.dart';
 import 'package:provident_insurance/model/user_model.dart';
 import 'package:provident_insurance/model/vehicle_things_model.dart';
+import 'package:provident_insurance/policy/vehicle_make_picker.dart';
+import 'package:provident_insurance/policy/vehicle_type_picker.dart';
 import 'package:provident_insurance/util/pop_up_helper.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
@@ -54,8 +56,6 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
 
   /*driver section*/
   static TextEditingController _sumInsuredController =
-      new TextEditingController();
-  static TextEditingController _vehicleColorController =
       new TextEditingController();
 
   static int _currentStep = 0;
@@ -204,18 +204,20 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
   var __genderTypesKeys = [_defGenderType, "MALE", "FEMALE"];
 
   static final String _defVehicleType = "Select Vehicle Type";
-  String _vehicleType = _defVehicleType;
-  List<VehicleThings> _vehicleTypes = [VehicleThings(name: _defVehicleType)];
+  VehicleThings _vehicleThingsType = VehicleThings(name: _defVehicleType);
 
   static final String _defVehicleMake = "Select Vehicle Make";
-  String _vehicleMake = _defVehicleMake;
-  List<VehicleThings> _vehicleMakes = [VehicleThings(name: _defVehicleMake)];
+  VehicleThings _vehicleThingsMake = VehicleThings(name: _defVehicleMake);
 
   static final String _defVehicleBodyTye = "Select Vehicle Body Type";
   String _vehicleBodyType = _defVehicleBodyTye;
   List<VehicleThings> _vehicleBodyTypes = [
     VehicleThings(name: _defVehicleBodyTye)
   ];
+
+  static final String _defVehicleColor = "Choose Vehicle Color";
+  String _vehicleColor = _defVehicleColor;
+  List<String> _vehicleColors = [_defVehicleColor];
 
   /*vehicle section*/
   static TextEditingController _numberOfSeatsController =
@@ -228,6 +230,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
   var disclaimer =
       "Kindly note that the premium displayed after the computation is dependent on the values you provided and might be amended or rejected should any discrepancy be noticed at the discretion of Provident Insurance Company Limited. Please tick the box below to confirm your acceptance of this disclaimer.";
   var discliamerTerms = false;
+
   _showMessage(String message) {
     Fluttertoast.showToast(
         msg: message,
@@ -248,6 +251,12 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
       lastDate: DateTime(2025),
     );
     if (picked != null) {
+      DateTime date = new DateTime.now();
+      var newDate = new DateTime(date.year - 17, date.month, date.day);
+      if (picked.isAfter(newDate)) {
+        _showMessage("Date of birth must be more than 18 years");
+        return;
+      }
       setState(() {
         _selectedDateOfBirthDisplay = DateFormat('yyyy-MM-dd').format(picked);
       });
@@ -491,40 +500,66 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
       shrinkWrap: true,
       reverse: false,
       children: <Widget>[
-        Container(
-          child: DropdownButton<String>(
-            value: _vehicleType,
-            isExpanded: true,
-            hint: Text('Choose Vehicle Type'),
-            items: this._vehicleTypes.map((value) {
-              return DropdownMenuItem(
-                value: value.name,
-                child: new Text(value.name),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                this._vehicleType = value.toString();
-              });
-            },
+        Padding(
+          padding: EdgeInsets.only(top: 16),
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                border: Border.all(width: 1.0, color: Colors.grey)),
+            child: TextButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .push(new MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              new VehicleTypePicker()))
+                      .then((value) => {
+                            if (value != null) {this._vehicleThingsType = value}
+                          });
+                },
+                child: Row(
+                  children: [
+                    Text(
+                      _defVehicleType,
+                      textAlign: TextAlign.left,
+                    ),
+                    Expanded(child: Container()),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 20,
+                    ),
+                  ],
+                )),
           ),
         ),
-        Container(
-          child: DropdownButton(
-            isExpanded: true,
-            value: _vehicleMake,
-            hint: Text('Choose Vehicle Make'),
-            items: this._vehicleMakes.map((value) {
-              return DropdownMenuItem(
-                value: value.name,
-                child: new Text(value.name),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                this._vehicleMake = value.toString();
-              });
-            },
+        Padding(
+          padding: EdgeInsets.only(top: 16),
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                border: Border.all(width: 1.0, color: Colors.grey)),
+            child: TextButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .push(new MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              new VehicleMakePicker()))
+                      .then((value) => {
+                            if (value != null) {this._vehicleThingsMake = value}
+                          });
+                },
+                child: Row(
+                  children: [
+                    Text(
+                      _defVehicleMake,
+                      textAlign: TextAlign.left,
+                    ),
+                    Expanded(child: Container()),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 20,
+                    ),
+                  ],
+                )),
           ),
         ),
         Container(
@@ -611,13 +646,22 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
             keyboardType: TextInputType.emailAddress,
           ),
         ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _vehicleColorController,
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter vehicle color"),
-            keyboardType: TextInputType.emailAddress,
+        Container(
+          child: DropdownButton<String>(
+            value: _vehicleColor,
+            isExpanded: true,
+            hint: Text(_defVehicleColor),
+            items: this._vehicleColors.map((value) {
+              return DropdownMenuItem(
+                value: value,
+                child: new Text(value),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                this._vehicleColor = value.toString();
+              });
+            },
           ),
         ),
       ],
@@ -645,47 +689,25 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
         this.user = value;
       });
       if (fetchData) {
-        this._getVehicleMakes(ApiUrl().getVehicleMakes());
-        this._getVehicleTypes(ApiUrl().getVehicleTypes());
         this._getVehicleBodyTypes(ApiUrl().getVehicleBodyTpe());
+        this._getVehicleColors(ApiUrl().getColors());
       }
     });
   }
 
-  _getVehicleMakes(String url) {
+  _getVehicleColors(String url) {
     ApiService.get(this.user.token)
         .getData(url)
         .then((value) {
-          List<VehicleThings> data = [];
+          List<String> data = [];
           value["results"].forEach((item) {
-            data.add(ParseApiData().parseThings(item));
+            data.add(item["name"].toString());
           });
           setState(() {
-            this._vehicleMakes.addAll(data);
+            this._vehicleColors.addAll(data);
           });
           if (value["next"] != null) {
-            _getVehicleMakes(value["next"].toString());
-          }
-        })
-        .whenComplete(() {})
-        .onError((error, stackTrace) {
-          print(error);
-        });
-  }
-
-  _getVehicleTypes(String url) {
-    ApiService.get(this.user.token)
-        .getData(url)
-        .then((value) {
-          List<VehicleThings> data = [];
-          value["results"].forEach((item) {
-            data.add(ParseApiData().parseThings(item));
-          });
-          setState(() {
-            this._vehicleTypes.addAll(data);
-          });
-          if (value["next"] != null) {
-            _getVehicleTypes(value["next"].toString());
+            _getVehicleColors(value["next"].toString());
           }
         })
         .whenComplete(() {})
@@ -738,15 +760,13 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                         _firstNameController.value.text.toString().trim();
                     var lastName =
                         _lastNameController.value.text.toString().trim();
-                    var middleName =
-                        _middleNameController.value.text.toString().trim();
+
                     var number =
                         _phoneNumberController.value.text.toString().trim();
                     var email =
                         _emailAddressController.value.text.toString().trim();
                     if (!Validator().isValidName(firstName) ||
-                        !Validator().isValidName(lastName) ||
-                        !Validator().isValidName(middleName)) {
+                        !Validator().isValidName(lastName)) {
                       this._showMessage("Enter a valid name");
                     } else if (!Validator().isValidPhoneNumber(number)) {
                       this._showMessage("Enter a valid number");
@@ -786,9 +806,9 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                       this.increaseStepper();
                     }
                   } else if (_currentStep == 3) {
-                    if (_vehicleType == _defVehicleType) {
+                    if (_vehicleThingsType.name == _defVehicleType) {
                       this._showMessage("Select vehicle type");
-                    } else if (_vehicleMake == _defVehicleMake) {
+                    } else if (_vehicleThingsMake.name == _defVehicleMake) {
                       this._showMessage("Select vehicle make");
                     } else if (_vehicleBodyType == _defVehicleBodyTye) {
                       this._showMessage("Select vehicle body");
@@ -803,12 +823,11 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
                         _numberOfSeatsController.text.toString().trim();
                     var maufacturingYear =
                         _manufacturingYearController.text.toString().trim();
-                    var color = _vehicleColorController.text.toString().trim();
                     if (!Validator().isValidInput(numberOfSeats)) {
                       this._showMessage("Enter vehicle number of seats");
                     } else if (!Validator().isValidInput(maufacturingYear)) {
                       this._showMessage("Enter year of manufacturing");
-                    } else if (!Validator().isValidInput(color)) {
+                    } else if (_vehicleColor == _defVehicleColor) {
                       this._showMessage("Provide color");
                     } else {
                       //MARK: continue to next
@@ -851,7 +870,7 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
     String middleName = _middleNameController.text.trim();
     String phoneNumber = _phoneNumberController.text.trim();
     String email = _emailAddressController.text.trim();
-    String color = _vehicleColorController.text.trim();
+    String color = _vehicleColor;
     String year = _manufacturingYearController.text.trim();
     String sum = _sumInsuredController.text.trim();
     String seatNo = _numberOfSeatsController.text.trim();
@@ -875,13 +894,13 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
       return;
     }
 
-    if (this._vehicleType == _defVehicleType) {
+    if (this._vehicleThingsType.name == _defVehicleType) {
       PopUpHelper(context, "Buy Policy", "Select vehicle type")
           .showMessageDialog("OK");
       return;
     }
 
-    if (this._vehicleMake == _defVehicleMake) {
+    if (this._vehicleThingsMake.name == _defVehicleMake) {
       PopUpHelper(context, "Buy Policy", "Select vehicle make")
           .showMessageDialog("OK");
       return;
@@ -893,17 +912,36 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
       return;
     }
 
-    VehicleThings vehicleThingsMake = this
-        ._vehicleMakes
-        .firstWhere((element) => element.name == this._vehicleMake);
+    if (this._vehicleColor == _defVehicleColor) {
+      PopUpHelper(context, "Buy Policy", "Select vehicle color")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (sum.isEmpty) {
+      PopUpHelper(context, "Buy Policy", "Sum insured is required")
+          .showMessageDialog("OK");
+      return;
+    }
 
     VehicleThings vehicleThingsBody = this
         ._vehicleBodyTypes
         .firstWhere((element) => element.name == this._vehicleBodyType);
 
-    VehicleThings vehicleThingsType = this
-        ._vehicleTypes
-        .firstWhere((element) => element.name == this._vehicleType);
+    var mimSumInsured = 15000;
+    var maxSumInsured = 400000;
+    if (vehicleThingsBody.name == "Motor Cycle") {
+      mimSumInsured = 2000;
+      maxSumInsured = 5000;
+    }
+
+    var sumInsured = double.parse(sum);
+    if (sumInsured < mimSumInsured || sumInsured > maxSumInsured) {
+      PopUpHelper(context, "Buy Policy",
+              "Sum insured has to be in the ranges of $mimSumInsured and $maxSumInsured")
+          .showMessageDialog("OK");
+      return;
+    }
 
     Map<String, String> data = new Map();
     data.putIfAbsent("phone_number", () => phoneNumber);
@@ -923,9 +961,9 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
         () => this._insuranceTypeKeys[
             this._insuranceTypes.indexOf(this._insuranceType)]);
     data.putIfAbsent("sum_insured", () => sum);
-    data.putIfAbsent("vehicle_make", () => vehicleThingsMake.id);
+    data.putIfAbsent("vehicle_make", () => _vehicleThingsMake.id);
 
-    data.putIfAbsent("vehicle_type", () => vehicleThingsType.id);
+    data.putIfAbsent("vehicle_type", () => _vehicleThingsType.id);
     data.putIfAbsent(
         "motive_power",
         () => this
@@ -943,7 +981,6 @@ class _PolicyQuoteScreenState extends State<PolicyQuoteScreen> {
         () => this.__idTypeKeys[this._idTypes.indexOf(this._idType)]);
     data.putIfAbsent("id_number", () => idNumber);
 
-    print(data);
     final progress = ProgressHUD.of(buildContext);
     progress?.show();
 

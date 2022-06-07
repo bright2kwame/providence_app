@@ -125,6 +125,6 @@ class NetworkUtil {
     } else if (statusCode >= 500 && statusCode <= 600) {
       throw new Exception(serverError);
     }
-    return json.decode(response.body);
+    return json.decode(utf8.decode(response.bodyBytes));
   }
 }

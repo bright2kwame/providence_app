@@ -4,12 +4,10 @@ import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provident_insurance/api/api_service.dart';
 import 'package:provident_insurance/api/api_url.dart';
-import 'package:provident_insurance/api/parse_data.dart';
 import 'package:provident_insurance/constants/app_enums.dart';
 import 'package:provident_insurance/constants/color.dart';
 import 'package:provident_insurance/model/db_operations.dart';
 import 'package:provident_insurance/model/user_model.dart';
-import 'package:provident_insurance/model/vehicle_things_model.dart';
 import 'package:provident_insurance/util/pop_up_helper.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
@@ -36,7 +34,10 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
         backgroundColor: secondaryColor,
         elevation: 0,
       ),
-      body: _buildMainContentView(context),
+      body: ProgressHUD(
+          child: Builder(
+        builder: (context) => _buildMainContentView(context),
+      )),
     );
   }
 
@@ -95,12 +96,13 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
             state: StepState.indexed,
             content: _personalUi()),
         new Step(
-            title: const Text('Actions'),
+            title: const Text(
+                'Select The Options Below If Your Answer To The Questions Is Yes'),
             isActive: _currentStep >= 1,
             state: StepState.indexed,
             content: _checkActionsUi()),
         new Step(
-            title: const Text('Drivers Info'),
+            title: const Text('Drivers\' Information'),
             isActive: _currentStep >= 2,
             state: StepState.indexed,
             content: _driverInfoUi()),
@@ -256,7 +258,7 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
                           padding:
                               EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
                           child: new TextFormField(
-                            controller: _vehicleNumberController,
+                            controller: _damageController,
                             autofocus: false,
                             decoration: AppInputDecorator.boxDecorate(
                                 "Damage to vehicle"),
@@ -753,10 +755,6 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
 
   User user = new User();
 
-  static final String _defOccupation = "Choose occupation";
-  String _occupation = _defOccupation;
-  List<VehicleThings> _occupations = [VehicleThings(name: _defOccupation)];
-
   static final String _defVehicleLocaton = "Choose Vehicle Location";
   String _vehicleLocaton = _defVehicleLocaton;
   List<String> _vehicleLocatons = [
@@ -786,7 +784,7 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     });
   }
 
-  Widget _buildMainContentView(context) {
+  Widget _buildMainContentView(BuildContext buildContext) {
     return new SafeArea(
       child: new SingleChildScrollView(
         child: new Column(
@@ -801,9 +799,8 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
               type: StepperType.vertical,
               currentStep: _currentStep,
               onStepContinue: () {
-                print("STEP " + _currentStep.toString());
                 setState(() {
-                  this.handleStepClicks();
+                  this.handleStepClicks(buildContext);
                 });
               },
               onStepCancel: () {
@@ -827,7 +824,7 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
     );
   }
 
-  void handleStepClicks() {
+  void handleStepClicks(BuildContext buildContext) {
     if (_currentStep == 0) {
       var noTimeSelected =
           _defAccidentTimeDisplay == _selectedAccidentTimeDisplay;
@@ -852,6 +849,8 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
         //MARK: continue to next
         this.increaseStepper();
       }
+    } else if (_currentStep == 1) {
+      this.increaseStepper();
     } else if (_currentStep == 2) {
       var driversName = _nameOfDriverController.text.trim();
       var driversAddress = _addressOfDriverController.text.trim();
@@ -863,16 +862,17 @@ class _FileClaimScreenState extends State<FileClaimScreen> {
         this._showMessage("Enter driver's address");
       } else if (!Validator().isValidInput(driversPhone)) {
         this._showMessage("Enter driver's phone");
-      } else if (!Validator().isValidInput(detailOfPassenger)) {
+      } else if (_passengerOnBoard &&
+          !Validator().isValidInput(detailOfPassenger)) {
         this._showMessage("Enter passenger details");
       } else {
         //MARK: continue to next
         this.increaseStepper();
       }
-    } else if (_currentStep == 1) {
-      this.increaseStepper();
     } else if (_currentStep == 3) {
-      this._checkAllRecordsAndSubmit(context);
+      this.increaseStepper();
+    } else if (_currentStep == 4) {
+      this._checkAllRecordsAndSubmit(buildContext);
     }
   }
 
