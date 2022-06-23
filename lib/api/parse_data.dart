@@ -28,13 +28,12 @@ class ParseApiData {
   }
 
   Policy parsePolicy(var result) {
-    // var policyDateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
-    // var outputFormat = DateFormat('MM/dd/yyyy');
-    String policyNumber = result["policy_number"];
+    String policyNumber = result["policy_number"].toString();
     String vehicleMake = result["vehicle_make"].toString();
     String ownerName = result["owner_name"].toString();
-    String extracted = result["renewal_date"].toString();
-    String renewalDate = extracted.substring(0, 10);
+    var extracted = result["renewal_date"];
+    String renewalDate =
+        extracted == null ? "N/A" : extracted.toString().substring(0, 10);
     bool isRenewalDue = result["is_renewal_due"];
     String colour = result["colour"].toString();
     String totalPremium = getJsonData(result, "total_premium");

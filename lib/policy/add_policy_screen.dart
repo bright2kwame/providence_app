@@ -265,6 +265,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   /*vehicle section*/
   static TextEditingController _numberOfSeatsController =
       new TextEditingController();
+  static TextEditingController _regNumberController =
+      new TextEditingController();
   static TextEditingController _manufacturingYearController =
       new TextEditingController();
   static TextEditingController _idNumberController =
@@ -751,6 +753,15 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         new Padding(
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
+            controller: _regNumberController,
+            autofocus: false,
+            decoration: AppInputDecorator.boxDecorate("Enter vehicle no."),
+            keyboardType: TextInputType.text,
+          ),
+        ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
             controller: _numberOfSeatsController,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             autofocus: false,
@@ -1204,6 +1215,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     String year = _manufacturingYearController.text.trim();
     String sum = _sumInsuredController.text.trim();
     String seatNo = _numberOfSeatsController.text.trim();
+    String regNo = _regNumberController.text.trim();
     String idNumber = _idNumberController.text.trim();
 
     String companyName = _companyNameController.text.trim();
@@ -1231,6 +1243,12 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
 
     if (_selectedDateOfBirthDisplay == "Date of Birth") {
       PopUpHelper(context, "Buy Policy", "Provide a valid date of birth")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (regNo.isEmpty) {
+      PopUpHelper(context, "Buy Policy", "Provide vehicle registration number")
           .showMessageDialog("OK");
       return;
     }
@@ -1282,6 +1300,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     data.putIfAbsent("last_name", () => lastName);
     data.putIfAbsent("date_of_birth", () => this._selectedDateOfBirthDisplay);
     data.putIfAbsent("vehicle_color", () => color);
+    data.putIfAbsent("vehicle_registration_number", () => regNo);
     data.putIfAbsent(
         "insurance_period",
         () => this._insurancePeriodsKeys[
@@ -1346,7 +1365,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       if (widget.isQuote) {
         String amount = value["results"]["premium"];
         String quoteId = value["results"]["quote_id"];
-        PopUpHelper(context, "Policy Quote", "Policy quote is " + amount)
+        PopUpHelper(context, "Policy Quote", "Policy quote is GHS " + amount)
             .showMessageDialogWith("EMAIL QUOTE", () {
           this._emailQuote(buildContext, quoteId);
         });
@@ -1355,7 +1374,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       String amount = value["results"]["premium"];
       String paymentLink = value["results"]["payment_url"];
       PopUpHelper(context, "Policy",
-              "Successfully placed purchase policy request of $amount")
+              "Successfully placed purchase policy request of GHS $amount")
           .showMessageDialogWith("PROCEED TO PAY", () {
         this._openPaymentPage(paymentLink);
       });
@@ -1363,7 +1382,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       progress?.dismiss();
     }).onError((error, stackTrace) {
       print(error);
-      PopUpHelper(context, "Policy", "Failed to buy policy")
+      PopUpHelper(context, "Policy Failed", error.toString())
           .showMessageDialog("OK");
     });
   }

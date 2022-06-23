@@ -307,14 +307,16 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  _showDownloadOption(String stickerUrl, String certUrl, String scheduleUrl) {
+  void _showDownloadOption(
+      String stickerUrl, String certUrl, String scheduleUrl) {
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         builder: (context) {
           return Padding(
               padding: MediaQuery.of(context).viewInsets,
-              child: Column(
+              child: SafeArea(
+                  child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Padding(
@@ -333,7 +335,10 @@ class _HomePageState extends State<HomePage> {
                             this._openStickerPage(stickerUrl);
                           },
                         )
-                      : Container(),
+                      : Container(
+                          margin: EdgeInsets.all(16),
+                          child: new Text('Sticker Pending'),
+                        ),
                   certUrl.isNotEmpty
                       ? ListTile(
                           leading: new Icon(Icons.reviews_sharp),
@@ -343,7 +348,10 @@ class _HomePageState extends State<HomePage> {
                             this._openStickerPage(certUrl);
                           },
                         )
-                      : Container(),
+                      : Container(
+                          margin: EdgeInsets.all(16),
+                          child: Text("Certificate Pending"),
+                        ),
                   scheduleUrl.isNotEmpty
                       ? ListTile(
                           leading: new Icon(Icons.event),
@@ -353,9 +361,12 @@ class _HomePageState extends State<HomePage> {
                             this._openStickerPage(scheduleUrl);
                           },
                         )
-                      : Container(),
+                      : Container(
+                          margin: EdgeInsets.all(16),
+                          child: Text("No Schedule Yet"),
+                        ),
                 ],
-              ));
+              )));
         });
   }
 

@@ -418,9 +418,9 @@ class _PolicieScreenState extends State<PolicieScreen> {
           print(value);
           String message = value["message"];
           PopUpHelper(context, "Added Policy", message)
-              .showMessageDialogWith("OK", () {
-            this._getPolicies();
-          });
+              .showMessageDialogWith("OK", () {});
+
+          this._getPolicies();
         })
         .whenComplete(() {})
         .onError((error, stackTrace) {
