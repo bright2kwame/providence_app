@@ -7,3 +7,13 @@ enum ImagePickerType {
   OTHER_DAMAGED_PROPERTY,
   REPAIRERS_ESTIMATE
 }
+
+enum PolicyType {
+  PERSONAL,
+  BUSINESS
+}
+
+enum BusinessType {
+  PERSONAL,
+  BUSINESS
+}

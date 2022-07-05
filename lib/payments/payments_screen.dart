@@ -31,6 +31,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         .then((value) {
           List<Payment> data = [];
           value["results"].forEach((item) {
+         
             data.add(ParseApiData().parsePayment(item));
           });
           setState(() {

@@ -15,6 +15,7 @@ import 'package:provident_insurance/util/pop_up_helper.dart';
 import 'package:provident_insurance/util/widget_helper.dart';
 import 'package:provident_insurance/util/input_decorator.dart';
 import 'package:provident_insurance/util/validator.dart';
+import 'package:provident_insurance/constants/app_enums.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -271,6 +272,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       new TextEditingController();
   static TextEditingController _idNumberController =
       new TextEditingController();
+   static TextEditingController _chasisNoController =
+      new TextEditingController();
 
   /*company section*/
   static TextEditingController _companyNameController =
@@ -360,7 +363,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                             },
                           ),
                         ),
-                        new Padding(
+                        this._policyType != "BUSINESS" ? new Padding(
                           padding:
                               EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
                           child: new TextFormField(
@@ -370,8 +373,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                                 "Enter first name"),
                             keyboardType: TextInputType.emailAddress,
                           ),
-                        ),
-                        new Padding(
+                        ): Container(),
+                        this._policyType != "BUSINESS" ? new Padding(
                           padding:
                               EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
                           child: new TextFormField(
@@ -381,8 +384,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                                 "Enter last name"),
                             keyboardType: TextInputType.emailAddress,
                           ),
-                        ),
-                        new Padding(
+                        ): Container(),
+                        this._policyType != "BUSINESS" ? new Padding(
                           padding:
                               EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
                           child: new TextFormField(
@@ -392,8 +395,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                                 "Enter middle name"),
                             keyboardType: TextInputType.emailAddress,
                           ),
-                        ),
-                        new Padding(
+                        ): Container(),
+                        this._policyType != "BUSINESS" ? new Padding(
                             padding: EdgeInsets.only(
                                 left: 0.0, right: 0.0, top: 16.0),
                             child: new TextFormField(
@@ -405,8 +408,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                               keyboardType: TextInputType.number,
                               decoration: AppInputDecorator.boxDecorate(
                                   "Enter phone number"),
-                            )),
-                        new Padding(
+                            )): Container(),
+                        this._policyType != "BUSINESS" ? new Padding(
                             padding: EdgeInsets.only(
                                 left: 0.0, right: 0.0, top: 16.0),
                             child: new TextFormField(
@@ -414,8 +417,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                               controller: _emailAddressController,
                               decoration: AppInputDecorator.boxDecorate(
                                   "Enter email address"),
-                            )),
-                        Padding(
+                            )): Container(),
+                        this._policyType != "BUSINESS" ? Padding(
                           padding: EdgeInsets.only(top: 16),
                           child: Container(
                             decoration: BoxDecoration(
@@ -441,7 +444,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                                   ],
                                 )),
                           ),
-                        ),
+                        ): Container() ,
                       ],
                     ),
                   ),
@@ -765,7 +768,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             controller: _numberOfSeatsController,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter Number of Seats"),
+            decoration: AppInputDecorator.boxDecorate("Enter number of seats"),
             keyboardType: TextInputType.emailAddress,
           ),
         ),
@@ -777,6 +780,16 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration:
                 AppInputDecorator.boxDecorate("Enter manufaturing year"),
+            keyboardType: TextInputType.number,
+          ),
+        ),
+          new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _chasisNoController,
+            autofocus: false,
+            decoration:
+                AppInputDecorator.boxDecorate("Enter chasis number"),
             keyboardType: TextInputType.number,
           ),
         ),
@@ -953,7 +966,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   }
 
   //MARK: update local db
-  _updateUser(bool fetchData) {
+  void _updateUser(bool fetchData) {
     DBOperations().getUser().then((value) {
       setState(() {
         this.user = value;
@@ -1060,16 +1073,16 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                   var email =
                       _emailAddressController.value.text.toString().trim();
 
-                  if (!Validator().isValidName(firstName) ||
-                      !Validator().isValidName(lastName)) {
+                  if (_policyType == PolicyType.PERSONAL.name && (!Validator().isValidName(firstName) ||
+                      !Validator().isValidName(lastName))) {
                     this._showMessage("Enter a valid name");
                   } else if (_policyType.isEmpty) {
                     this._showMessage("Choose policy type");
-                  } else if (!Validator().isValidPhoneNumber(number)) {
+                  } else if (_policyType == PolicyType.PERSONAL.name && !Validator().isValidPhoneNumber(number)) {
                     this._showMessage("Enter a valid number");
-                  } else if (!Validator().isValidEmail(email)) {
+                  } else if (_policyType == PolicyType.PERSONAL.name && !Validator().isValidEmail(email)) {
                     this._showMessage("Enter a valid email address");
-                  } else if (!Validator()
+                  } else if (_policyType == PolicyType.PERSONAL.name && !Validator()
                       .isValidInput(_selectedDateOfBirthDisplay)) {
                     this._showMessage("Select date oof birth");
                   } else {
@@ -1079,10 +1092,10 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                 } else if (_currentStep == 1) {
                   var selected = this._idTypes.contains(this._idType);
                   var selectedGender = this._genderTypes.contains(this._gender);
-                  if (_policyType == "PERSONAL" &&
+                  if (_policyType == PolicyType.PERSONAL.name &&
                       (_idType == _defIDTypeType || !selected)) {
                     this._showMessage("Select ID type");
-                  } else if (_policyType == "BUSNESS" &&
+                  } else if (_policyType == PolicyType.BUSINESS.name &&
                       (_idType == _defIDTypeType || !selected)) {
                     this._showMessage("Select gender");
                   } else if (_gender == _defGenderType || !selectedGender) {
@@ -1217,32 +1230,39 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     String seatNo = _numberOfSeatsController.text.trim();
     String regNo = _regNumberController.text.trim();
     String idNumber = _idNumberController.text.trim();
+    String chasisNumber = _chasisNoController.text.trim();
 
     String companyName = _companyNameController.text.trim();
     String contactName = _contactNameController.text.trim();
     String contactMobile = _contactMobileController.text.trim();
     String contactPosition = _contactPositionController.text.trim();
 
-    if (firstName.isEmpty || lastName.isEmpty || middleName.isEmpty) {
+    if (this._policyType == "PERSONAL" && (firstName.isEmpty || lastName.isEmpty || middleName.isEmpty)) {
       PopUpHelper(context, "Buy Policy", "Provide name information")
           .showMessageDialog("OK");
       return;
     }
 
-    if (phoneNumber.isEmpty) {
+    if (this._policyType == "PERSONAL" &&  phoneNumber.isEmpty) {
       PopUpHelper(context, "Buy Policy", "Provide phone number")
           .showMessageDialog("OK");
       return;
     }
 
-    if (!Validator().isValidEmail(email)) {
+    if (this._policyType == "PERSONAL" &&   !Validator().isValidEmail(email)) {
       PopUpHelper(context, "Buy Policy", "Enter a valid email address")
           .showMessageDialog("OK");
       return;
     }
 
-    if (_selectedDateOfBirthDisplay == "Date of Birth") {
+    if (this._policyType == "PERSONAL" &&  _selectedDateOfBirthDisplay == "Date of Birth") {
       PopUpHelper(context, "Buy Policy", "Provide a valid date of birth")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (chasisNumber.isEmpty) {  
+      PopUpHelper(context, "Buy Policy", "Provide vehicle chasis number")
           .showMessageDialog("OK");
       return;
     }
@@ -1301,6 +1321,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     data.putIfAbsent("date_of_birth", () => this._selectedDateOfBirthDisplay);
     data.putIfAbsent("vehicle_color", () => color);
     data.putIfAbsent("vehicle_registration_number", () => regNo);
+     data.putIfAbsent("chasis_number", () => chasisNumber);
     data.putIfAbsent(
         "insurance_period",
         () => this._insurancePeriodsKeys[
