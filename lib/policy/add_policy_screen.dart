@@ -272,7 +272,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       new TextEditingController();
   static TextEditingController _idNumberController =
       new TextEditingController();
-   static TextEditingController _chasisNoController =
+  static TextEditingController _chasisNoController =
       new TextEditingController();
 
   /*company section*/
@@ -363,88 +363,100 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                             },
                           ),
                         ),
-                        this._policyType != "BUSINESS" ? new Padding(
-                          padding:
-                              EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-                          child: new TextFormField(
-                            controller: _firstNameController,
-                            autofocus: false,
-                            decoration: AppInputDecorator.boxDecorate(
-                                "Enter first name"),
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                        ): Container(),
-                        this._policyType != "BUSINESS" ? new Padding(
-                          padding:
-                              EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-                          child: new TextFormField(
-                            controller: _lastNameController,
-                            autofocus: false,
-                            decoration: AppInputDecorator.boxDecorate(
-                                "Enter last name"),
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                        ): Container(),
-                        this._policyType != "BUSINESS" ? new Padding(
-                          padding:
-                              EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-                          child: new TextFormField(
-                            controller: _middleNameController,
-                            autofocus: false,
-                            decoration: AppInputDecorator.boxDecorate(
-                                "Enter middle name"),
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                        ): Container(),
-                        this._policyType != "BUSINESS" ? new Padding(
-                            padding: EdgeInsets.only(
-                                left: 0.0, right: 0.0, top: 16.0),
-                            child: new TextFormField(
-                              autofocus: false,
-                              controller: _phoneNumberController,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              keyboardType: TextInputType.number,
-                              decoration: AppInputDecorator.boxDecorate(
-                                  "Enter phone number"),
-                            )): Container(),
-                        this._policyType != "BUSINESS" ? new Padding(
-                            padding: EdgeInsets.only(
-                                left: 0.0, right: 0.0, top: 16.0),
-                            child: new TextFormField(
-                              autofocus: false,
-                              controller: _emailAddressController,
-                              decoration: AppInputDecorator.boxDecorate(
-                                  "Enter email address"),
-                            )): Container(),
-                        this._policyType != "BUSINESS" ? Padding(
-                          padding: EdgeInsets.only(top: 16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                border:
-                                    Border.all(width: 1.0, color: Colors.grey)),
-                            child: TextButton(
-                                onPressed: () {
-                                  this._selectDate();
-                                },
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      _selectedDateOfBirthDisplay,
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    Expanded(child: Container()),
-                                    Icon(
-                                      Icons.date_range_outlined,
-                                      size: 20,
-                                    ),
+                        this._policyType != "BUSINESS"
+                            ? new Padding(
+                                padding: EdgeInsets.only(
+                                    left: 0.0, right: 0.0, top: 16),
+                                child: new TextFormField(
+                                  controller: _firstNameController,
+                                  autofocus: false,
+                                  decoration: AppInputDecorator.boxDecorate(
+                                      "Enter first name"),
+                                  keyboardType: TextInputType.emailAddress,
+                                ),
+                              )
+                            : Container(),
+                        this._policyType != "BUSINESS"
+                            ? new Padding(
+                                padding: EdgeInsets.only(
+                                    left: 0.0, right: 0.0, top: 16),
+                                child: new TextFormField(
+                                  controller: _lastNameController,
+                                  autofocus: false,
+                                  decoration: AppInputDecorator.boxDecorate(
+                                      "Enter last name"),
+                                  keyboardType: TextInputType.emailAddress,
+                                ),
+                              )
+                            : Container(),
+                        this._policyType != "BUSINESS"
+                            ? new Padding(
+                                padding: EdgeInsets.only(
+                                    left: 0.0, right: 0.0, top: 16),
+                                child: new TextFormField(
+                                  controller: _middleNameController,
+                                  autofocus: false,
+                                  decoration: AppInputDecorator.boxDecorate(
+                                      "Enter middle name"),
+                                  keyboardType: TextInputType.emailAddress,
+                                ),
+                              )
+                            : Container(),
+                        this._policyType != "BUSINESS"
+                            ? new Padding(
+                                padding: EdgeInsets.only(
+                                    left: 0.0, right: 0.0, top: 16.0),
+                                child: new TextFormField(
+                                  autofocus: false,
+                                  controller: _phoneNumberController,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
                                   ],
-                                )),
-                          ),
-                        ): Container() ,
+                                  keyboardType: TextInputType.number,
+                                  decoration: AppInputDecorator.boxDecorate(
+                                      "Enter phone number"),
+                                ))
+                            : Container(),
+                        this._policyType != "BUSINESS"
+                            ? new Padding(
+                                padding: EdgeInsets.only(
+                                    left: 0.0, right: 0.0, top: 16.0),
+                                child: new TextFormField(
+                                  autofocus: false,
+                                  controller: _emailAddressController,
+                                  decoration: AppInputDecorator.boxDecorate(
+                                      "Enter email address"),
+                                ))
+                            : Container(),
+                        this._policyType != "BUSINESS"
+                            ? Padding(
+                                padding: EdgeInsets.only(top: 16),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      border: Border.all(
+                                          width: 1.0, color: Colors.grey)),
+                                  child: TextButton(
+                                      onPressed: () {
+                                        this._selectDate();
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            _selectedDateOfBirthDisplay,
+                                            textAlign: TextAlign.left,
+                                          ),
+                                          Expanded(child: Container()),
+                                          Icon(
+                                            Icons.date_range_outlined,
+                                            size: 20,
+                                          ),
+                                        ],
+                                      )),
+                                ),
+                              )
+                            : Container(),
                       ],
                     ),
                   ),
@@ -468,24 +480,26 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              child: DropdownButton<String>(
-                value: _gender,
-                isExpanded: true,
-                hint: Text('Choose Gender'),
-                items: this._genderTypes.map((value) {
-                  return DropdownMenuItem(
-                    value: value,
-                    child: new Text(value),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    this._gender = value.toString();
-                  });
-                },
-              ),
-            ),
+            this._policyType != "BUSINESS"
+                ? Container(
+                    child: DropdownButton<String>(
+                      value: _gender,
+                      isExpanded: true,
+                      hint: Text('Select Gender'),
+                      items: this._genderTypes.map((value) {
+                        return DropdownMenuItem(
+                          value: value,
+                          child: new Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          this._gender = value.toString();
+                        });
+                      },
+                    ),
+                  )
+                : Container(),
             this._policyType == "PERSONAL"
                 ? Container(
                     child: DropdownButton<String>(
@@ -582,16 +596,19 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             },
           ),
         ),
-        new Padding(
-          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
-          child: new TextFormField(
-            controller: _sumInsuredController,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter sum insured"),
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
-          ),
-        ),
+        this._insuranceType == "Comprehensive"
+            ? new Padding(
+                padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+                child: new TextFormField(
+                  controller: _sumInsuredController,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  autofocus: false,
+                  decoration:
+                      AppInputDecorator.boxDecorate("Enter sum insured"),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                ),
+              )
+            : Container(),
       ],
     ));
   }
@@ -769,7 +786,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             autofocus: false,
             decoration: AppInputDecorator.boxDecorate("Enter number of seats"),
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.number,
           ),
         ),
         new Padding(
@@ -783,14 +800,13 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             keyboardType: TextInputType.number,
           ),
         ),
-          new Padding(
+        new Padding(
           padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
           child: new TextFormField(
             controller: _chasisNoController,
             autofocus: false,
-            decoration:
-                AppInputDecorator.boxDecorate("Enter chasis number"),
-            keyboardType: TextInputType.number,
+            decoration: AppInputDecorator.boxDecorate("Enter chasis number"),
+            keyboardType: TextInputType.text,
           ),
         ),
         Padding(
@@ -1069,21 +1085,24 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                       _lastNameController.value.text.toString().trim();
                   var number =
                       _phoneNumberController.value.text.toString().trim();
-
                   var email =
                       _emailAddressController.value.text.toString().trim();
 
-                  if (_policyType == PolicyType.PERSONAL.name && (!Validator().isValidName(firstName) ||
-                      !Validator().isValidName(lastName))) {
+                  if (_policyType == PolicyType.PERSONAL.name &&
+                      (!Validator().isValidName(firstName) ||
+                          !Validator().isValidName(lastName))) {
                     this._showMessage("Enter a valid name");
                   } else if (_policyType.isEmpty) {
                     this._showMessage("Choose policy type");
-                  } else if (_policyType == PolicyType.PERSONAL.name && !Validator().isValidPhoneNumber(number)) {
+                  } else if (_policyType == PolicyType.PERSONAL.name &&
+                      !Validator().isValidPhoneNumber(number)) {
                     this._showMessage("Enter a valid number");
-                  } else if (_policyType == PolicyType.PERSONAL.name && !Validator().isValidEmail(email)) {
+                  } else if (_policyType == PolicyType.PERSONAL.name &&
+                      email.isNotEmpty &&
+                      !Validator().isValidEmail(email)) {
                     this._showMessage("Enter a valid email address");
-                  } else if (_policyType == PolicyType.PERSONAL.name && !Validator()
-                      .isValidInput(_selectedDateOfBirthDisplay)) {
+                  } else if (_policyType == PolicyType.PERSONAL.name &&
+                      !Validator().isValidInput(_selectedDateOfBirthDisplay)) {
                     this._showMessage("Select date oof birth");
                   } else {
                     //MARK: continue to next
@@ -1237,31 +1256,35 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     String contactMobile = _contactMobileController.text.trim();
     String contactPosition = _contactPositionController.text.trim();
 
-    if (this._policyType == "PERSONAL" && (firstName.isEmpty || lastName.isEmpty || middleName.isEmpty)) {
+    if (this._policyType == "PERSONAL" &&
+        (firstName.isEmpty || lastName.isEmpty)) {
       PopUpHelper(context, "Buy Policy", "Provide name information")
           .showMessageDialog("OK");
       return;
     }
 
-    if (this._policyType == "PERSONAL" &&  phoneNumber.isEmpty) {
+    if (this._policyType == "PERSONAL" && phoneNumber.isEmpty) {
       PopUpHelper(context, "Buy Policy", "Provide phone number")
           .showMessageDialog("OK");
       return;
     }
 
-    if (this._policyType == "PERSONAL" &&   !Validator().isValidEmail(email)) {
+    if (this._policyType == "PERSONAL" &&
+        email.isNotEmpty &&
+        !Validator().isValidEmail(email)) {
       PopUpHelper(context, "Buy Policy", "Enter a valid email address")
           .showMessageDialog("OK");
       return;
     }
 
-    if (this._policyType == "PERSONAL" &&  _selectedDateOfBirthDisplay == "Date of Birth") {
+    if (this._policyType == "PERSONAL" &&
+        _selectedDateOfBirthDisplay == "Date of Birth") {
       PopUpHelper(context, "Buy Policy", "Provide a valid date of birth")
           .showMessageDialog("OK");
       return;
     }
 
-    if (chasisNumber.isEmpty) {  
+    if (chasisNumber.isEmpty) {
       PopUpHelper(context, "Buy Policy", "Provide vehicle chasis number")
           .showMessageDialog("OK");
       return;
@@ -1321,7 +1344,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     data.putIfAbsent("date_of_birth", () => this._selectedDateOfBirthDisplay);
     data.putIfAbsent("vehicle_color", () => color);
     data.putIfAbsent("vehicle_registration_number", () => regNo);
-     data.putIfAbsent("chasis_number", () => chasisNumber);
+    data.putIfAbsent("chasis_number", () => chasisNumber);
     data.putIfAbsent(
         "insurance_period",
         () => this._insurancePeriodsKeys[
