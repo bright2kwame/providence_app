@@ -143,4 +143,9 @@ class ApiUrl {
   String getColors() {
     return getBaseUrl() + "users/get_colors/";
   }
+
+  //MARK: get reg numbers
+  String getRegNumber() {
+    return getBaseUrl() + "users/check_vehicle_exist/";
+  }
 }

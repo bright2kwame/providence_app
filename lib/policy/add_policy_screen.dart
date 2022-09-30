@@ -775,7 +775,38 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
           child: new TextFormField(
             controller: _regNumberController,
             autofocus: false,
-            decoration: AppInputDecorator.boxDecorate("Enter vehicle no."),
+            decoration: InputDecoration(
+                labelText: "Enter registration number",
+                isDense: true,
+                suffixIconConstraints: BoxConstraints(
+                  minWidth: 2,
+                  minHeight: 2,
+                ),
+                contentPadding: EdgeInsets.only(
+                    bottom: 16.0, left: 16.0, right: 16.0, top: 16.0),
+                focusedBorder: new OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(
+                      const Radius.circular(10.0),
+                    ),
+                    borderSide: new BorderSide(
+                        color: const Color(0xFF0C3974), width: 0.5)),
+                border: new OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(
+                    const Radius.circular(5.0),
+                  ),
+                  borderSide: new BorderSide(
+                    color: Colors.black.withAlpha(10),
+                    width: 0.5,
+                  ),
+                ),
+                suffixIcon: InkWell(
+                    child: Padding(
+                      child: Icon(Icons.done, size: 16),
+                      padding: EdgeInsets.all(8.0),
+                    ),
+                    onTap: () {
+                      _validateRegNumber();
+                    })),
             keyboardType: TextInputType.text,
           ),
         ),
@@ -1449,6 +1480,27 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       PopUpHelper(context, "Policy", "Failed to buy policy")
           .showMessageDialog("OK");
     });
+  }
+
+  //MARK: verify registration number
+  void _validateRegNumber() async {
+    String regNo = _regNumberController.text.trim();
+    Map<String, String> data = new Map();
+    data.putIfAbsent("vehicle_registration_number", () => regNo);
+    ApiService.get(this.user.token)
+        .postData(ApiUrl().getRegNumber(), data)
+        .then((value) {
+          print(value);
+          String result = value["results"];
+          PopUpHelper(context, "Number Verified", result)
+              .showMessageDialog("OK");
+        })
+        .whenComplete(() {})
+        .onError((error, stackTrace) {
+          print(error);
+          PopUpHelper(context, "Verification", error.toString())
+              .showMessageDialog("OK");
+        });
   }
 
   //MARK: take user to terms page
