@@ -1349,8 +1349,14 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       return;
     }
 
-    if (isAgentSubmission && agentNumber.isEmpty) {
-      PopUpHelper(context, "Buy Policy", "Enter agent number and proceed")
+    if (color.isEmpty) {
+      PopUpHelper(context, "Buy Policy", "Provide vehicle color")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (year.isEmpty) {
+      PopUpHelper(context, "Buy Policy", "Provide vehicle manufacturing year")
           .showMessageDialog("OK");
       return;
     }
@@ -1359,8 +1365,16 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         (companyName.isEmpty ||
             contactName.isEmpty ||
             contactMobile.isEmpty ||
-            contactPosition.isEmpty)) {
+            contactPosition.isEmpty ||
+            _industry == _defIndustry ||
+            _occupation == _defOccupation)) {
       PopUpHelper(context, "Buy Policy", "Provide company info")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (isAgentSubmission && agentNumber.isEmpty) {
+      PopUpHelper(context, "Buy Policy", "Enter agent number and proceed")
           .showMessageDialog("OK");
       return;
     }
