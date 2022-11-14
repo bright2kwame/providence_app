@@ -1,7 +1,7 @@
 class Validator {
   String validateName(String value) {
-    if (value.length < 3)
-      return "Name must be more than 2 charater";
+    if (value.isEmpty)
+      return "Enter a valid name";
     else
       return "";
   }

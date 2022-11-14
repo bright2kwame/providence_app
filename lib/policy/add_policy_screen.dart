@@ -212,14 +212,16 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     "VOTERS",
     "DRIVING_LICENSE"
   ];
+
+  static final String _defBusIDType = "Select ID Type";
+  String _idBusType = _defBusIDType;
   var __idTypeBusiness = [
-    _defIDTypeType,
+    _defBusIDType,
     "CERTIFICATE OF INCORPORATION",
     "CERTIFICATE OF COMMENCEMENT"
   ];
-
   var __idTypeBusinessKeys = [
-    _defIDTypeType,
+    _defBusIDType,
     "CERTIFICATE_OF_INCORPORATION",
     "CERTIFICATE_OF_COMMENCEMENT"
   ];
@@ -521,7 +523,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                   )
                 : Container(
                     child: DropdownButton<String>(
-                      value: _idType,
+                      value: _idBusType,
                       isExpanded: true,
                       hint: Text('Choose ID Type'),
                       items: this.__idTypeBusiness.map((value) {
@@ -532,7 +534,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          this._idType = value.toString();
+                          this._idBusType = value.toString();
                         });
                       },
                     ),
@@ -1140,15 +1142,17 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                     this.increaseStepper();
                   }
                 } else if (_currentStep == 1) {
-                  var selected = this._idTypes.contains(this._idType);
+                  var selectedPersonal = this._idTypes.contains(this._idType);
                   var selectedGender = this._genderTypes.contains(this._gender);
                   if (_policyType == PolicyType.PERSONAL.name &&
-                      (_idType == _defIDTypeType || !selected)) {
+                      (_idType == _defIDTypeType || !selectedPersonal)) {
                     this._showMessage("Select ID type");
                   } else if (_policyType == PolicyType.BUSINESS.name &&
-                      (_idType == _defIDTypeType || !selected)) {
-                    this._showMessage("Select gender");
-                  } else if (_gender == _defGenderType || !selectedGender) {
+                      (_idBusType == _defBusIDType || !selectedPersonal)) {
+                    this._showMessage("Select ID type");
+                  } else if (_policyType == PolicyType.PERSONAL.name &&
+                          _gender == _defGenderType ||
+                      !selectedGender) {
                     this._showMessage("Select gender");
                   } else {
                     //MARK: continue to next
