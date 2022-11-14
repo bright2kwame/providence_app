@@ -66,6 +66,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
   /*driver section*/
   static TextEditingController _sumInsuredController =
       new TextEditingController();
+  static TextEditingController _cubicUnitController =
+      new TextEditingController();
 
   static int _currentStep = 0;
   static var _focusNode = new FocusNode();
@@ -842,6 +844,17 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             keyboardType: TextInputType.text,
           ),
         ),
+        new Padding(
+          padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 16),
+          child: new TextFormField(
+            controller: _cubicUnitController,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            autofocus: false,
+            decoration:
+                AppInputDecorator.boxDecorate("Enter cubic/engine capacity"),
+            keyboardType: TextInputType.number,
+          ),
+        ),
         Padding(
           padding: EdgeInsets.only(top: 16),
           child: Container(
@@ -1190,11 +1203,14 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                       _numberOfSeatsController.text.toString().trim();
                   var maufacturingYear =
                       _manufacturingYearController.text.toString().trim();
+                  var cubitUnit = _cubicUnitController.text.toString().trim();
                   var color = this._vehicleColor;
                   if (!Validator().isValidInput(numberOfSeats)) {
                     this._showMessage("Enter vehicle number of seats");
                   } else if (!Validator().isValidInput(maufacturingYear)) {
                     this._showMessage("Enter year of manufacturing");
+                  } else if (!Validator().isValidInput(cubitUnit)) {
+                    this._showMessage("Provide cubic/engine capacity");
                   } else if (!Validator().isValidInput(color)) {
                     this._showMessage("Provide color");
                   } else {
@@ -1285,6 +1301,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     String regNo = _regNumberController.text.trim();
     String idNumber = _idNumberController.text.trim();
     String chasisNumber = _chasisNoController.text.trim();
+    String cubicUnit = _cubicUnitController.text.trim();
 
     String companyName = _companyNameController.text.trim();
     String contactName = _contactNameController.text.trim();
@@ -1357,6 +1374,12 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
 
     if (year.isEmpty) {
       PopUpHelper(context, "Buy Policy", "Provide vehicle manufacturing year")
+          .showMessageDialog("OK");
+      return;
+    }
+
+    if (cubicUnit.isEmpty) {
+      PopUpHelper(context, "Buy Policy", "Provide vehicle engine capacity")
           .showMessageDialog("OK");
       return;
     }
