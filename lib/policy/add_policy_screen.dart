@@ -1450,7 +1450,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             : this.__idTypeBusinessKeys[
                 this.__idTypeBusiness.indexOf(this._idType)]);
     data.putIfAbsent("id_number", () => idNumber);
-
+    data.putIfAbsent("cubic_capacity", () => cubicUnit);
     if (this._policyType == "BUSINESS") {
       //MARK: company
       data.putIfAbsent("company_name", () => companyName);
