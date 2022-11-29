@@ -110,7 +110,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
             content: _agentsInputUi()),
       ];
 
-  String _selectedDateOfBirthDisplay = "Date of Birth";
+  static final String _defDateOfBirthDisplay = "Date of Birth";
+  String _selectedDateOfBirthDisplay = _defDateOfBirthDisplay;
 
   static final String _defInsuranceType = "Select Insurance Type";
   String _insuranceType = _defInsuranceType;
@@ -319,7 +320,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       if (picked.isAfter(newDate)) {
         _showMessage("Date of birth must be more than 18 years");
         setState(() {
-          _selectedDateOfBirthDisplay = "Date of Birth";
+          _selectedDateOfBirthDisplay = _defDateOfBirthDisplay;
         });
         return;
       }
@@ -1066,9 +1067,9 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     ApiService.getNoAuth()
         .getDataNoAuth(url)
         .then((value) {
-          print(value.toString());
           List<VehicleThings> data = [];
           value["results"].forEach((item) {
+            print(item);
             data.add(ParseApiData().parseThing(item));
           });
           setState(() {
@@ -1149,7 +1150,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
                     this._showMessage("Enter a valid email address");
                   } else if (_policyType == PolicyType.PERSONAL.name &&
                       !Validator().isValidInput(_selectedDateOfBirthDisplay)) {
-                    this._showMessage("Select date oof birth");
+                    this._showMessage("Select date of birth");
                   } else {
                     //MARK: continue to next
                     this.increaseStepper();
@@ -1308,20 +1309,23 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
     String contactMobile = _contactMobileController.text.trim();
     String contactPosition = _contactPositionController.text.trim();
 
-    if (this._policyType == "PERSONAL" &&
+    if (_policyType == PolicyType.BUSINESS.name) {
+      _selectedDateOfBirthDisplay = "";
+    }
+    if (this._policyType == PolicyType.PERSONAL.name &&
         (firstName.isEmpty || lastName.isEmpty)) {
       PopUpHelper(context, "Buy Policy", "Provide name information")
           .showMessageDialog("OK");
       return;
     }
 
-    if (this._policyType == "PERSONAL" && phoneNumber.isEmpty) {
+    if (this._policyType == PolicyType.PERSONAL.name && phoneNumber.isEmpty) {
       PopUpHelper(context, "Buy Policy", "Provide phone number")
           .showMessageDialog("OK");
       return;
     }
 
-    if (this._policyType == "PERSONAL" &&
+    if (this._policyType == PolicyType.PERSONAL.name &&
         email.isNotEmpty &&
         !Validator().isValidEmail(email)) {
       PopUpHelper(context, "Buy Policy", "Enter a valid email address")
@@ -1329,8 +1333,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       return;
     }
 
-    if (this._policyType == "PERSONAL" &&
-        _selectedDateOfBirthDisplay == "Date of Birth") {
+    if (this._policyType == PolicyType.PERSONAL.name &&
+        _selectedDateOfBirthDisplay == _defDateOfBirthDisplay) {
       PopUpHelper(context, "Buy Policy", "Provide a valid date of birth")
           .showMessageDialog("OK");
       return;
@@ -1384,7 +1388,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
       return;
     }
 
-    if (this._policyType == "BUSINESS" &&
+    if (this._policyType == PolicyType.BUSINESS.name &&
         (companyName.isEmpty ||
             contactName.isEmpty ||
             contactMobile.isEmpty ||
@@ -1445,13 +1449,13 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         () => this.__genderTypesKeys[this._genderTypes.indexOf(this._gender)]);
     data.putIfAbsent(
         "id_type",
-        () => this._policyType == "PERSONAL"
+        () => this._policyType == PolicyType.PERSONAL.name
             ? this.__idTypeKeys[this._idTypes.indexOf(this._idType)]
             : this.__idTypeBusinessKeys[
                 this.__idTypeBusiness.indexOf(this._idType)]);
     data.putIfAbsent("id_number", () => idNumber);
     data.putIfAbsent("cubic_capacity", () => cubicUnit);
-    if (this._policyType == "BUSINESS") {
+    if (this._policyType == PolicyType.BUSINESS.name) {
       //MARK: company
       data.putIfAbsent("company_name", () => companyName);
       data.putIfAbsent("chief_contact_name", () => contactName);
@@ -1474,7 +1478,7 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
 
     final progress = ProgressHUD.of(buildContext);
     progress?.show();
-
+    print(data);
     ApiService.get(this.user.token)
         .postData(ApiUrl().buyPolicy(), data)
         .then((value) {
@@ -1488,7 +1492,8 @@ class _AddPolicyScreenState extends State<AddPolicyScreen> {
         return;
       }
       String amount = value["results"]["premium"];
-      String paymentLink = value["results"]["payment_url"];
+      String paymentLink =
+          ParseApiData().getJsonData(value["results"], "payment_url");
       PopUpHelper(context, "Policy",
               "Successfully placed purchase policy request of GHS $amount")
           .showMessageDialogWith("PROCEED TO PAY", () {
